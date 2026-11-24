@@ -30,7 +30,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description: "Require Photoshop state changes (modifying batchPlay, DOM edits) to run inside core.executeAsModal",
       recommended: true,
-      sources: [SOURCES.executeAsModal, SOURCES.psManifestApiVersion, SOURCES.forum6687, SOURCES.forum5837],
+      sources: [SOURCES.executeAsModal, SOURCES.psManifestApiVersion, SOURCES.forum6687, SOURCES.forum5837, SOURCES.forum11898],
     },
     schema: [{ type: "object", properties: { extraModifyingMethods: { type: "array", items: { type: "string" } }, readOnlyDescriptors: { type: "array", items: { type: "string" } }, checkDomMethods: { type: "boolean" } }, additionalProperties: false }],
     messages: {

@@ -55,11 +55,17 @@ describe("project discovery", () => {
     write(d, "cep/CSXS/manifest.xml", "<ExtensionManifest/>");
     write(d, "jsx/host.jsx", "#target photoshop\napp.activeDocument;");
     write(d, "server/package.json", JSON.stringify({ name: "s", bin: { s: "x.js" } }));
+    // hyperbrew/bolt-uxp ships its Vite plugin (Node code using fs.mkdirSync, http) inside the template
+    write(d, "vite-uxp-plugin/package.json", JSON.stringify({ name: "vite-uxp-plugin", dependencies: { ws: "^8", archiver: "5" }, devDependencies: { "@types/node": "^20" } }));
     const reasons = classifyFolders(d, d).map((x) => x.reason).join(" ");
     expect(reasons).toMatch(/CEP/i);
     expect(reasons).toMatch(/ExtendScript/i);
     expect(reasons).toMatch(/Node/i);
     expect(reasons).toMatch(/WebView/i);
+    expect(classifyFolders(d, d).some((x) => x.path.endsWith("vite-uxp-plugin"))).toBe(true);
+    // ...but bolt-uxp-utils (UXP runtime helpers that also ship a setup bin) is linted
+    write(d, "bolt-uxp-utils/package.json", JSON.stringify({ name: "bolt-uxp-utils", bin: { x: "scripts/setup.js" }, peerDependencies: { "@types/photoshop": "*" } }));
+    expect(classifyFolders(d, d).some((x) => x.path.endsWith("bolt-uxp-utils"))).toBe(false);
     const [p] = findProjects(d);
     expect(p!.manifest).toMatch(/manifest\.json$/);
   });

@@ -70,22 +70,40 @@ export interface ResolvedUxp {
   uxpVersion: string | null;
 }
 
-const cache = new WeakMap<object, ResolvedUxp>();
+const cache = new WeakMap<object, Map<string, ResolvedUxp>>();
+
+/** Host named by a file or folder (`ppro.ts`, `src/photoshop/…`, `indesign-utils.js`), used for multi-host manifests. */
+const HOST_HINTS: [RegExp, string][] = [
+  [/(^|[\/._-])(ppro|premiere|premierepro)([\/._-]|$)/i, "premierepro"],
+  [/(^|[\/._-])(ps|photoshop)([\/._-]|$)/i, "PS"],
+  [/(^|[\/._-])(indesign|idsn)([\/._-]|$)/i, "ID"],
+];
 
 export function getUxp(context: Readonly<TSESLint.RuleContext<string, readonly unknown[]>>): ResolvedUxp {
   const s = ((context.settings as Record<string, unknown> | undefined)?.uxp ?? {}) as UxpSettings;
-  const cached = cache.get(s);
-  if (cached) return cached;
+  let byHint = cache.get(s);
+  if (!byHint) { byHint = new Map(); cache.set(s, byHint); }
   let manifest: UxpManifest | null = s.manifest ?? null;
   if (!manifest && typeof s.manifestText === "string") {
     try { manifest = JSON.parse(s.manifestText) as UxpManifest; } catch { manifest = null; }
   }
   const hostEntries = manifest?.host ? (Array.isArray(manifest.host) ? manifest.host : [manifest.host]) : [];
   const hosts = hostEntries.map((h) => h.app).filter((x): x is string => typeof x === "string");
-  const host = s.host ?? hosts[0] ?? null;
+  const filename = (context.filename ?? "").split("\\").join("/");
+  const hint = !s.host && hosts.length > 1 ? HOST_HINTS.find(([re, h]) => hosts.includes(h) && re.test(filename))?.[1] ?? "" : "";
+  const cached = byHint.get(hint);
+  if (cached) return cached;
+  const host = s.host ?? (hint || hosts[0]) ?? null;
   const entry = hostEntries.find((h) => h.app === host) ?? hostEntries[0];
   const hostMinVersion = s.hostMinVersion ?? (typeof entry?.minVersion === "string" ? entry.minVersion : null);
-  const uxpVersion = s.uxpVersion ?? (host && hostMinVersion ? uxpForHost(host, hostMinVersion) : null);
+  let uxpVersion = s.uxpVersion ?? (host && hostMinVersion ? uxpForHost(host, hostMinVersion) : null);
+  // Shared code in a multi-host plugin: hold it to the newest UXP any host ships, so only APIs no host has are reported.
+  if (!s.uxpVersion && !s.host && !hint && hostEntries.length > 1) {
+    for (const h of hostEntries) {
+      const v = typeof h.app === "string" && typeof h.minVersion === "string" ? uxpForHost(h.app, h.minVersion) : null;
+      if (v && (!uxpVersion || compareVersions(v, uxpVersion) > 0)) uxpVersion = v;
+    }
+  }
   const r: ResolvedUxp = {
     manifest,
     manifestVersion: typeof manifest?.manifestVersion === "number" ? manifest.manifestVersion : null,
@@ -94,6 +112,6 @@ export function getUxp(context: Readonly<TSESLint.RuleContext<string, readonly u
     hostMinVersion,
     uxpVersion,
   };
-  cache.set(s, r);
+  byHint.set(hint, r);
   return r;
 }

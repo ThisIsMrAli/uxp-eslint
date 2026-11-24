@@ -21,7 +21,6 @@ export const SOURCES = {
   manifestV5Md: "https://github.com/AdobeDocs/uxp-photoshop/blob/9bd99ffedbaf0e79d525ee2ffe200eb29a8e6aaf/src/pages/guides/uxp-guide/uxp-misc/manifest-v5/index.md",
   forum8224: "https://forums.creativeclouddeveloper.com/t/localfilesystem-getentrywithurl-is-not-a-function/8224",
   forum11310: "https://forums.creativeclouddeveloper.com/t/does-css-gap-work-in-uxp-panels-for-prpro/11310",
-  forum6824: "https://forums.creativeclouddeveloper.com/t/uxp-react-not-rendering-background-image-on-css/6824",
   forum11898: "https://forums.creativeclouddeveloper.com/t/trying-to-fix-require-is-not-a-function/11898",
   uiPlaygroundReadme: "https://github.com/AdobeDocs/uxp-photoshop-plugin-samples/tree/main/ui-playground",
 } as const;

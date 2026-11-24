@@ -26,7 +26,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description: "Disallow CSS properties, values, at-rules, pseudo selectors, units and functions that the target UXP version does not support (CSS files, via @eslint/css)",
       recommended: true,
-      sources: ["jardicc/vscode-uxp-validator UXP CSS data (MIT)", SOURCES.knownIssues, "AdobeDocs/uxp reference-css", SOURCES.uxpChangelog],
+      sources: ["jardicc/vscode-uxp-validator UXP CSS data (MIT)", SOURCES.knownIssues, "AdobeDocs/uxp reference-css", SOURCES.uxpChangelog, SOURCES.forum11310],
     },
     schema: [{ type: "object", properties: { ignore: { type: "array", items: { type: "string" } }, ignoreVendorPrefixed: { type: "boolean" }, checkValues: { type: "boolean" }, ignoreBuildTimeAtRules: { type: "boolean" } }, additionalProperties: false }],
     messages: {

@@ -100,21 +100,31 @@ export function findProjects(cwd = process.cwd(), depth = 5): UxpProject[] {
   const top = resolve(cwd);
   const manifests = scanManifests(top, depth);
   const manifestDirs = manifests.map((m) => dirname(m.path));
-  return manifests.map((m) => {
-    let root = dirname(m.path);
-    const parent = dirname(root);
-    if (PLUGIN_SUBDIRS.has(basename(root)) && (parent + sep).startsWith(top + sep) && existsSync(join(parent, "package.json"))) root = parent;
-    const pkgDir = [root, dirname(m.path)].find((d) => existsSync(join(d, "package.json")));
-    return {
-      manifest: m.path,
-      root,
-      skipped: classifyFolders(root, dirname(m.path), manifestDirs),
-      reactVersion: pkgDir ? reactMajor(join(pkgDir, "package.json")) : undefined,
-      styledElements: styledElements(root),
-      ...(setupFileCount(root) > 1 ? { splitSetup: true } : {}),
-      ...(m.error ? { manifestError: m.error } : {}),
-    };
-  });
+  return manifests.map((m) => projectFor(m.path, top, manifestDirs, m.error));
+}
+
+/**
+ * The project around one manifest. A manifest kept in plugin/, public/, … next to a package.json lints the parent;
+ * a manifest in build output (dist/, build/, out/, e.g. bolt-uxp after a build) lints `top`.
+ */
+export function projectFor(manifestPath: string, top: string = dirname(resolve(manifestPath)), manifestDirs: string[] = [dirname(resolve(manifestPath))], manifestError?: string): UxpProject {
+  const path = resolve(manifestPath);
+  let root = dirname(path);
+  const parent = dirname(root);
+  if (PLUGIN_SUBDIRS.has(basename(root)) && (parent + sep).startsWith(resolve(top) + sep) && existsSync(join(parent, "package.json"))) root = parent;
+  if (/^(dist|build|out)$/.test(basename(dirname(path))) && (path + sep).startsWith(resolve(top) + sep)) root = resolve(top);
+  const pkgDir = [root, dirname(path)].find((d) => existsSync(join(d, "package.json")));
+  let error = manifestError;
+  if (error === undefined && existsSync(path)) error = parseManifest(readFileSync(path, "utf8")).error;
+  return {
+    manifest: path,
+    root,
+    skipped: classifyFolders(root, dirname(path), manifestDirs),
+    reactVersion: pkgDir ? reactMajor(join(pkgDir, "package.json")) : undefined,
+    styledElements: styledElements(root),
+    ...(setupFileCount(root) > 1 ? { splitSetup: true } : {}),
+    ...(error ? { manifestError: error } : {}),
+  };
 }
 
 function readJson(path: string): Record<string, unknown> | null {
@@ -130,7 +140,8 @@ function reactMajor(pkgPath: string): number | undefined {
   return m ? Number(m[1]) : undefined;
 }
 
-const NODE_TOOL_DEPS = /^(vite|rollup|webpack|esbuild|express|koa|fastify|electron|commander|yargs|@vitejs\/|@rollup\/|puppeteer|playwright)/;
+const NODE_TOOL_DEPS = /^(vite|rollup|webpack|esbuild|express|koa|fastify|electron|commander|yargs|@vitejs\/|@rollup\/|puppeteer|playwright|@types\/node$|ws$|archiver$|chokidar$|fs-extra$)/;
+const UXP_TYPE_DEPS = /^(@types\/photoshop|@types\/uxp|@adobe\/(premierepro|cc-ext-uxp-types|uxp-types|indesign))$/;
 const EXTENDSCRIPT = /^\s*(#target|#targetengine|#include|#script|\/\/\s*@(target|include))\b/m;
 const WEBVIEW_SRC = /<webview\b[^>]*?\ssrc\s*=\s*\{?\s*["'`]([^"'`]+)["'`]/gi;
 
@@ -153,7 +164,8 @@ export function classifyFolders(root: string, manifestDir: string, manifestDirs:
       if (names.has("package.json") && !manifestDirs.some((m) => m === dir || m.startsWith(dir + sep))) {
         const pkg = readJson(join(dir, "package.json"));
         const deps = Object.keys({ ...(pkg?.dependencies as object), ...(pkg?.peerDependencies as object), ...(pkg?.devDependencies as object) });
-        if (pkg && (pkg.bin || (pkg.engines as Record<string, unknown> | undefined)?.node || deps.some((x) => NODE_TOOL_DEPS.test(x)))) { add(dir, "Node package (build tool / CLI / server)"); return; }
+        const uxpLib = deps.some((x) => UXP_TYPE_DEPS.test(x)); // e.g. hyperbrew bolt-uxp-utils: UXP runtime code with a setup bin
+        if (pkg && !uxpLib && (pkg.bin || (pkg.engines as Record<string, unknown> | undefined)?.node || deps.some((x) => NODE_TOOL_DEPS.test(x)))) { add(dir, "Node package (build tool / CLI / server)"); return; }
       }
     }
     for (const e of entries) {
@@ -275,7 +287,7 @@ const globFor = (cwd: string, abs: string, isDir: boolean) => {
 export async function uxpConfig(opts: NodeConfigOptions = {}) {
   const cwd = resolve(opts.cwd ?? process.cwd());
   const projects: UxpProject[] = opts.manifest
-    ? (Array.isArray(opts.manifest) ? opts.manifest : [opts.manifest]).map((p) => { const m = resolve(cwd, p); return { manifest: m, root: dirname(m), skipped: classifyFolders(dirname(m), dirname(m)) }; })
+    ? (Array.isArray(opts.manifest) ? opts.manifest : [opts.manifest]).map((p) => projectFor(resolve(cwd, p), cwd))
     : findProjects(cwd);
   const [css, json, htmlParser, tseslint] = await Promise.all([
     optional<unknown>("@eslint/css"),

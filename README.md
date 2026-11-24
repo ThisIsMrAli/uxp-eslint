@@ -1,50 +1,159 @@
 # eslint-plugin-uxp-lint
 
-ESLint rules for Adobe UXP plugins (Photoshop, InDesign, Premiere Pro). They catch the mistakes UXP only reports at runtime, or never reports:
+ESLint rules for Adobe UXP plugins (Photoshop, InDesign, Premiere Pro). They catch problems that UXP only shows at runtime, or never shows at all:
 
-- **API newer than your manifest**: `core.getLayerTree()` with `host.minVersion: "23.0.0"`, `ResizeObserver` on a host that ships UXP 6.
-- **Code vs manifest permissions**: `fetch()` to a domain missing from `requiredPermissions.network.domains`, `shell.openPath()` on a folder without `""` in `launchProcess.extensions`, file pickers without `localFileSystem: "request"`, clipboard, IPC, WebView, user info, `alert()` without `featureFlags.enableAlerts`.
-- **CSS / HTML that UXP ignores**: `gap`, `display: grid`, `font` shorthand, `transition`, `@keyframes`, `<ul>`, `<label for>`, `<input type="file">`, … checked against the UXP version your manifest targets.
-- **Photoshop modal scope**: modifying `batchPlay`, DOM edits and setters outside `core.executeAsModal`, and unhandled `executeAsModal` rejections.
-- **UXP gotchas**: Node-only modules, `fs` methods UXP does not have, `keypress`, `MutationObserver`, `matchMedia`, scripts in `innerHTML`, storage in `.psjs` scripts.
+- **APIs newer than your manifest.** For example `core.getLayerTree()` with `host.minVersion: "23.0.0"`, `localFileSystem.getEntryWithUrl()` before Photoshop 24.2, or `ResizeObserver` on a host that ships UXP 6.
+- **Code that doesn't match manifest permissions.** `fetch()` to a domain missing from `network.domains`, `shell.openExternal()` without `launchProcess`, file pickers without `localFileSystem: "request"`, plus clipboard, IPC, WebView and user info. Also `alert()` without `featureFlags.enableAlerts`.
+- **Photoshop modal mistakes.**
+  - Modifying `batchPlay` calls, DOM edits and setters that run outside `core.executeAsModal`. The check follows variables, helper functions and wrapper functions within the same file.
+  - Unawaited work inside the modal target.
+  - Lost `executeAsModal` rejections.
+- **CSS and HTML that UXP ignores**, checked against the UXP version your manifest targets. Examples: `gap`, `display: grid`, the `font` shorthand, `transition`, `@keyframes`, `transform-origin` without `CSSNextSupport`, `<label for>`, `<input type="file">`, and `<option>` without `value`.
+- **Manifest mistakes**:
+  - required keys
+  - version format
+  - entrypoint types and duplicate ids
+  - permission values
+  - top-level wildcard domains (rejected since UXP 7.4)
+  - `main` inside an entrypoint
+- **Deprecated and unavailable APIs**:
+  - `clipboard.setContent` and the `uxpvideo*` events
+  - Node-only modules
+  - `fs` methods that UXP doesn't have
+  - `keypress`
+  - `localStorage` in `.psjs` scripts
 
-Every fact comes from a cited source (Adobe docs, `@types/photoshop`, Jaroslav Bereza's UXP validator data, or a named community report). Nothing is guessed: unknown versions skip the check.
+**Precision first.** Every check cites an Adobe doc, `@types/photoshop`, Jaroslav Bereza's MIT UXP data, or a named forum thread. When a fact is unknown, the check is skipped instead of guessed.
 
-Works with ESLint 9.15+ and 10 (flat config), JavaScript, TypeScript and JSX, in Node and in the browser (`Linter` from `eslint/universal`).
+The same applies to code the linter can't see. Exported helpers, callbacks passed to unknown functions, and feature-detected calls (`if (window.X)`, `x?.()`, `typeof`, `try`) are never reported.
 
-## Install
+The rules were tuned against 65 UXP plugins in 47 public repositories; see [real-sample-results/HARDENING.md](real-sample-results/HARDENING.md).
+
+It works with ESLint 9.15+ and 10 (flat config). It handles JavaScript, TypeScript, JSX, CSS, HTML and `manifest.json`, and runs in Node and in the browser (`Linter` from `eslint/universal`).
+
+## Quick start (no config)
+
+```sh
+npx uxp-lint .
+```
+
+```text
+main.js
+  12:9   error    batchPlay `make` modifies Photoshop state but runs outside core.executeAsModal(). With apiVersion 2 this throws; wrap it in executeAsModal.  uxp-lint/photoshop-modal-scope
+  14:15  error    `cdn.other.com` is not in `requiredPermissions.network.domains`; the request will be denied ("Manifest entry not found").  uxp-lint/manifest-permissions
+  16:16  error    `core.getLayerTree` needs PS 23.1+ (@types/photoshop @minVersion), but manifest host.minVersion is 23.0.0. Raise minVersion or feature-detect it.  uxp-lint/api-min-version
+
+styles.css
+  1:23  warning  Property `gap` is not supported by UXP 5.5.1.  uxp-lint/no-unsupported-css
+
+✖ 34 problems (18 errors, 16 warnings) in 4 files
+  1 fixable with --fix
+  1 plugin (PS 23.0.0 → UXP 5.5.1) · 0.4s · uxp-lint 0.2.0
+
+Rule docs:
+     7 × uxp-lint/no-unsupported-html  https://github.com/ThisIsMrAli/uxp-eslint/blob/main/docs/rules/no-unsupported-html.md
+```
+
+The CLI finds every UXP `manifest.json`, including ones kept in `plugin/` or `public/` in bolt-uxp and Vite projects. It reads host, minVersion and permissions from that file.
+
+It lints only code that runs in UXP. Skipped automatically:
+
+- `node_modules` and build output
+- tests and build tooling (`*.config.*`, `scripts/`, files with a shebang, `node:` imports or `process.argv`)
+- minified bundles
+- CEP panels (`CSXS/manifest.xml`)
+- ExtendScript (`.jsx` with `#target`)
+- nested Node packages
+- WebView pages (`<webview src>`)
+
+The "Not linted" summary line lists what was skipped. Use `--no-default-ignores` to lint everything.
+
+| Option | |
+|---|---|
+| `--format stylish\|github\|sarif\|json` | Output format; `github` writes workflow annotations, `sarif` is SARIF 2.1.0 for code scanning |
+| `-o, --output <file>` | Write the report to a file |
+| `--manifest <file>` | Use this manifest instead of discovering one (e.g. a bolt-uxp build's `dist/manifest.json`) |
+| `--fix` | Apply safe autofixes and print how many were fixed |
+| `--strict` | Strict preset |
+| `--quiet`, `--max-warnings <n>` | As in ESLint |
+| `--ignore <globs>` | Extra comma-separated ignores |
+| `--init` | Write an `eslint.config.mjs` and print the packages to install |
+| `--rules` | List the rules with docs links |
+
+Exit codes: `0` means no errors, `1` means lint errors or `--max-warnings` was exceeded, `2` means a usage or configuration error.
+
+## Install as an ESLint plugin
 
 ```sh
 npm i -D eslint eslint-plugin-uxp-lint
-# optional, to lint stylesheets, HTML and manifest.json:
-npm i -D @eslint/css @html-eslint/parser @eslint/json
-# optional, for .ts/.tsx and typed (more precise) min-version checks:
-npm i -D typescript typescript-eslint @types/photoshop
+npm i -D @eslint/css @eslint/json @html-eslint/parser   # optional: CSS, manifest.json, HTML
+npm i -D typescript-eslint @types/photoshop             # optional: .ts/.tsx and typed min-version checks
+npx uxp-lint --init                                     # writes eslint.config.mjs
 ```
 
-## Zero-config (recommended)
-
-`eslint.config.js`:
+`eslint.config.mjs`:
 
 ```js
 import { uxpConfig } from "eslint-plugin-uxp-lint/node";
 
 export default [
-  ...(await uxpConfig()), // finds every UXP manifest.json, reads it, loads the optional plugins you installed
+  // ...your other configs
+  ...(await uxpConfig()), // finds each manifest.json and loads the optional language plugins you installed
 ];
 ```
 
-`uxpConfig({ cwd, manifest: "plugin/manifest.json", level: "strict" })` lets you pin the manifest or switch to the strict preset. A manifest kept in `plugin/` or `public/` next to a `package.json` lints the whole project (so `src/` is included).
+`uxpConfig(options)` accepts these options:
 
-Or run the CLI without any config:
+- `cwd`
+- `manifest` (a path or paths)
+- `level: "recommended" | "strict"`
+- `settings`
+- `ignores` (scoped to the uxp-lint blocks)
+- `defaultIgnores: false`
 
-```sh
-npx uxp-lint .                 # stylish output, exit 1 on errors
-npx uxp-lint . --format sarif  # SARIF 2.1.0 for code scanning
-npx uxp-lint . --format json --strict --fix --ignore "tools/**"
+### Editor (VS Code, WebStorm, Neovim)
+
+There's no separate extension. Install the official **ESLint** extension (`dbaeumer.vscode-eslint`) and keep the `eslint.config.mjs` above, and problems appear as you type.
+
+To also lint CSS, HTML and the manifest in VS Code, add this to `.vscode/settings.json`:
+
+```json
+{
+  "eslint.useFlatConfig": true,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "css", "html", "json"]
+}
 ```
 
-The CLI skips `node_modules`, `dist`, `build`, `*.config.*`, `scripts/`, `server/` and `webview-ui/` (Node and WebView code is not UXP code).
+Quick fixes such as "Add `await`" or "Replace with `write`" appear in the lightbulb menu. Autofixable problems are fixed by "ESLint: Fix all auto-fixable problems" or by `"editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" }`.
+
+WebStorm and Neovim (`eslint-lsp`) use the same flat config.
+
+### CI (GitHub Actions)
+
+```yaml
+# .github/workflows/uxp-lint.yml
+name: uxp-lint
+on: [push, pull_request]
+permissions:
+  contents: read
+  security-events: write   # for the SARIF upload
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      # Inline annotations on the PR diff:
+      - run: npx uxp-lint . --format github
+      # Or GitHub code scanning (Security tab, PR checks); keep the job green and let code scanning gate:
+      - run: npx uxp-lint . --format sarif -o uxp-lint.sarif || true
+      - uses: github/codeql-action/upload-sarif@v3
+        with: { sarif_file: uxp-lint.sarif, category: uxp-lint }
+```
+
+The SARIF file includes rule metadata with help text and docs links, repo-relative paths (`%SRCROOT%`), and end positions, so code scanning shows each alert with its rule page.
 
 ## Manual config
 
@@ -58,78 +167,89 @@ import manifest from "./manifest.json" with { type: "json" };
 export default buildConfig({ manifest, css, json, htmlParser, level: "recommended" });
 ```
 
-Static presets, if you prefer to wire settings yourself:
-
-```js
-export default [
-  { ...uxpLint.configs.photoshop, settings: { uxp: { manifest } } }, // or indesign / premierepro / recommended / strict / *-strict
-  { ...uxpLint.configs.css, plugins: { ...uxpLint.configs.css.plugins, css } },
-  { ...uxpLint.configs.manifest, plugins: { ...uxpLint.configs.manifest.plugins, json } },
-];
-```
+If you prefer to wire up settings yourself, static presets are available as `uxpLint.configs.photoshop`, `indesign`, `premierepro`, `recommended`, `strict`, `*-strict`, `css` and `manifest`.
 
 ### Settings (`settings.uxp`)
 
 | Key | Meaning |
 |---|---|
-| `manifest` | Parsed manifest.json. Drives every manifest-aware rule. |
-| `manifestText` | Raw manifest text (parsed if `manifest` is absent). |
+| `manifest` / `manifestText` | Parsed or raw manifest.json. Drives every manifest-aware rule. |
 | `host` | Force `"PS"`, `"ID"` or `"premierepro"`. Default: `host.app`. |
-| `hostMinVersion` | Override `host.minVersion`. |
-| `uxpVersion` | Override the UXP version (default: mapped from `host.minVersion`). |
+| `hostMinVersion`, `uxpVersion` | Override the minimum host or UXP version. |
+| `reactVersion` | React major version (set by `uxpConfig()` from package.json). React 19 forwards `onChange` to `sp-*` elements. |
+| `styledElements` | Unsupported elements your CSS styles, such as `li` (set by `uxpConfig()`). Adobe documents styling them as the workaround. |
+| `splitSetup` | `entrypoints.setup()` is spread over several files (set by `uxpConfig()`). |
+| `lintGenerated`, `lintNodeScripts` | Also lint minified/generated files or Node scripts. Both are skipped by default. |
 
-Without a manifest, permission, entrypoint and version rules stay silent; the other rules still run.
+Without a manifest, the permission, entrypoint and version rules stay silent; the other rules still run.
 
 ## Rules
 
-| Rule | What it reports | Recommended | Fix |
-|---|---|:-:|:-:|
-| [manifest-permissions](docs/rules/manifest-permissions.md) | APIs used without the matching `requiredPermissions` (network, launchProcess, localFileSystem, clipboard, ipc, webview, enableUserInfo, enableAlerts) | error | |
-| [api-min-version](docs/rules/api-min-version.md) | UXP / Photoshop APIs newer than `host.minVersion` (typed mode when type info exists) | error | |
-| [no-unsupported-css](docs/rules/no-unsupported-css.md) | CSS properties, values, at-rules, selectors, units, functions not in the target UXP | warn | |
-| [no-unsupported-inline-style](docs/rules/no-unsupported-inline-style.md) | Same, for JSX `style` objects and `el.style` | warn | |
-| [no-unsupported-html](docs/rules/no-unsupported-html.md) | Unsupported elements/attributes/patterns in HTML and JSX | warn | |
-| [no-unsupported-web-api](docs/rules/no-unsupported-web-api.md) | Browser APIs UXP lacks or documents as unreliable | warn | |
-| [no-unsupported-fs-method](docs/rules/no-unsupported-fs-method.md) | `fs` methods UXP does not document | error | |
-| [no-node-builtin-modules](docs/rules/no-node-builtin-modules.md) | `http`, `child_process`, `net`, … | error | |
-| [entrypoints-match-manifest](docs/rules/entrypoints-match-manifest.md) | `entrypoints.setup()` ids vs manifest entrypoints | error | |
-| [valid-manifest](docs/rules/valid-manifest.md) | Silent manifest.json mistakes | error | yes |
-| [photoshop-modal-scope](docs/rules/photoshop-modal-scope.md) | State changes outside `executeAsModal` (Photoshop, apiVersion 2) | error (PS) | |
-| [photoshop-handle-modal-errors](docs/rules/photoshop-handle-modal-errors.md) | Unhandled `executeAsModal` rejections | warn (PS) | |
+See [docs/rules](docs/rules/README.md). Each page has incorrect and correct examples (tested in CI), options, messages, when not to use the rule, and sources.
 
-`strict` raises the warnings to errors, enables `aria-*` checks and checks vendor-prefixed CSS.
+| Rule | What it reports | Recommended | |
+|---|---|:-:|:-:|
+| [manifest-permissions](docs/rules/manifest-permissions.md) | APIs used without the matching `requiredPermissions` or feature flag | error | |
+| [api-min-version](docs/rules/api-min-version.md) | UXP and Photoshop APIs newer than `host.minVersion` | error | |
+| [valid-manifest](docs/rules/valid-manifest.md) | manifest.json mistakes UXP accepts silently or rejects late | error | 🔧 |
+| [entrypoints-match-manifest](docs/rules/entrypoints-match-manifest.md) | `entrypoints.setup()` ids vs manifest entrypoints | error | |
+| [photoshop-modal-scope](docs/rules/photoshop-modal-scope.md) | State changes outside `executeAsModal` (Photoshop, apiVersion 2) | error | |
+| [photoshop-await-in-modal](docs/rules/photoshop-await-in-modal.md) | Unawaited batchPlay/history calls and `forEach(async)` inside the modal target | warn | 💡 |
+| [photoshop-handle-modal-errors](docs/rules/photoshop-handle-modal-errors.md) | Lost `executeAsModal` rejections | warn | |
+| [no-unsupported-css](docs/rules/no-unsupported-css.md) | CSS the target UXP doesn't support | warn | |
+| [no-unsupported-inline-style](docs/rules/no-unsupported-inline-style.md) | The same check for JSX `style` objects and `el.style` | warn | |
+| [no-unsupported-html](docs/rules/no-unsupported-html.md) | Unsupported elements, attributes and patterns in HTML and JSX | warn | |
+| [no-unsupported-web-api](docs/rules/no-unsupported-web-api.md) | Browser APIs UXP lacks or documents as unreliable | warn | |
+| [no-deprecated-api](docs/rules/no-deprecated-api.md) | Deprecated UXP and Photoshop APIs, with the documented replacement | warn | 💡 |
+| [no-unsupported-fs-method](docs/rules/no-unsupported-fs-method.md) | `fs` methods UXP doesn't document | error | |
+| [no-node-builtin-modules](docs/rules/no-node-builtin-modules.md) | `http`, `child_process`, `net`, … | error | |
+
+🔧 autofix with `--fix` · 💡 editor suggestion. `strict` raises warnings to errors and enables `aria-*` and vendor-prefixed CSS checks.
+
+## In the browser
+
+`eslint-plugin-uxp-lint/browser` (also built as the single file `dist/uxp-lint.browser.mjs`) exports `buildConfig`, `rules`, `configs` and the default plugin with no Node APIs. Pass the manifest in:
+
+```js
+import { Linter } from "eslint/universal"; // or eslint-linter-browserify
+import { buildConfig } from "eslint-plugin-uxp-lint/browser";
+const messages = new Linter().verify(code, buildConfig({ manifest }), { filename: "main.js" });
+```
+
+See [INTEGRATION.md](INTEGRATION.md) for the embedding contract (UXP Playground).
 
 ## Works alongside
 
-- **Premiere Pro**: keep Adobe's [`@adobe/eslint-plugin-premierepro`](https://github.com/adobe/eslint-plugin-premierepro) for Action/lock/transaction rules. This plugin adds the cross-host rules; it does not copy Adobe's.
-  ```js
-  import premierepro from "@adobe/eslint-plugin-premierepro";
-  export default [premierepro.configs.recommended, ...(await uxpConfig())];
-  ```
-- **bubblydoo** [`@bubblydoo/eslint-plugin-uxp`](https://github.com/bubblydoo/uxp-toolkit) (`no-tailwind-gap-utility`, `prefer-adobe-protocol`) can run next to it.
-- **Jarda's Validator for UXP** (VS Code) gives in-editor manifest IntelliSense and LESS/SCSS checks; this plugin reuses its MIT-licensed version and CSS tables for CI and other editors.
+- **Premiere Pro.** Keep Adobe's [`@adobe/eslint-plugin-premierepro`](https://github.com/adobe/eslint-plugin-premierepro) for its Action, lock and transaction rules. This plugin adds the cross-host rules and doesn't copy Adobe's: `export default [premierepro.configs.recommended, ...(await uxpConfig())]`.
+- **bubblydoo** [`@bubblydoo/eslint-plugin-uxp`](https://github.com/bubblydoo/uxp-toolkit) can run next to it.
+- **Jarda's Validator for UXP** (VS Code) gives in-editor manifest IntelliSense and LESS/SCSS checks. This plugin reuses its MIT-licensed version and CSS tables for CI and other editors.
 
 ## Data and how to refresh it
 
-`data/*.json` are generated by `node scripts/build-data.mjs <sourcesDir>` and are never hand-edited. Each file has a `$source` block (repo, file, commit, licence):
+`data/*.json` is generated by `npm run data` (`node scripts/build-data.mjs <sourcesDir>`) and never hand-edited. Each file has a `$source` block with the repo, file, commit and licence:
 
 | File | Source |
 |---|---|
 | `host-uxp-versions.json` | jardicc/vscode-uxp-validator `common/versionTable.ts` (MIT) |
-| `css.json` | jardicc/vscode-uxp-validator UXP CSS data (MIT; based on Microsoft `@vscode/web-custom-data`, MIT) + AdobeDocs/uxp reference-css |
+| `css.json` | jardicc/vscode-uxp-validator UXP CSS data (MIT) + AdobeDocs/uxp reference-css |
 | `uxp-since.json` | AdobeDocs/uxp reference-js `**Since**` lines |
 | `fs-methods.json` | AdobeDocs/uxp `Modules/fs/fs.md` |
 | `photoshop-min-versions.json` | `@types/photoshop` 27.11.0 `@minVersion` tags (MIT) |
 
-Hand-written facts (`src/data/html.ts`, `src/data/web-api.ts`) cite a URL each and are labelled `docs` or `community`.
+The hand-written facts in `src/data/` (`html.ts`, `web-api.ts`, `curated-since.ts`) each cite a URL. The UXP changelog, the Photoshop changelog, the manifest v4/v5 reference, or a forum thread are labelled `docs` or `community`.
+
+Rule docs are generated by `npm run docs` from rule metadata and `docs/src/rule-docs.mjs`.
 
 ## Limits
 
-- Static analysis only. Runtime host bugs (silent batchPlay no-ops, modal races) are out of reach.
-- The CSS data and the host→UXP table come from one community source; Adobe's samples sometimes use CSS the data marks as unsupported (for example `gap` in a Premiere sample). Such reports need a host check before you trust them.
-- Modal-scope analysis is per file. Helpers that are only exported are not judged; DOM-method detection uses receiver names.
-- Photoshop min-version data covers Photoshop only. InDesign and Premiere API versions are not mined yet (UXP-level checks still run for them).
-- LESS/SCSS, Vue and Svelte templates are not parsed.
+- Static analysis only. Runtime host bugs (silent batchPlay no-ops, modal races) are out of reach. No rule claims to have been run against a live Photoshop, InDesign or Premiere Pro.
+- Modal-scope analysis works within a single file. Code reachable only through imports is "unknown", so it is not reported.
+- The CSS data and the host→UXP table come from one community source and Adobe docs. A few entries can lag behind host releases.
+- Photoshop min-version data covers Photoshop only. InDesign and Premiere API versions aren't mined yet; UXP-level checks still run for them.
+- Multi-host manifests: a file whose path names a host (`ppro.ts`, `src/photoshop/`, `indesign-utils.js`) is checked against that host. Other shared files are held to the newest UXP any listed host ships, so only APIs that no host has are reported. Photoshop-only rules use the first host.
+- Projects whose manifest is generated at build time (bolt-uxp) get no version or permission checks until you pass `--manifest`.
+- Network domains are matched by host name; the scheme (`http` vs `https`, `ws`/`wss`) isn't checked.
+- LESS/SCSS, Vue and Svelte templates aren't parsed. `<script>` in `.vue`/`.svelte` isn't linted unless you add a parser.
 
 ## License
 

@@ -107,6 +107,18 @@ describe.skipIf(!has)("CLI", () => {
     expect(fs.readFileSync(path.join(d, "eslint.config.mjs"), "utf8")).toBe("export default [];\n");
   });
 
+  it("--manifest points at a built manifest (bolt-uxp dist/) and lints the project around it", () => {
+    const d = tmp();
+    fs.mkdirSync(path.join(d, "dist"));
+    fs.mkdirSync(path.join(d, "src"));
+    fs.writeFileSync(path.join(d, "dist/manifest.json"), JSON.stringify({ manifestVersion: 5, id: "a", name: "abc", version: "1.0.0", host: { app: "PS", minVersion: "24.0.0" }, entrypoints: [] }));
+    fs.writeFileSync(path.join(d, "src/main.js"), "fetch('https://api.example.com');\n");
+    const r = run([d, "--manifest", path.join(d, "dist/manifest.json"), "--format", "json"]);
+    const j = JSON.parse(r.out) as { filePath: string; messages: { ruleId: string }[] }[];
+    expect(j.some((f) => f.filePath.endsWith("main.js") && f.messages.some((m) => m.ruleId === "uxp-lint/manifest-permissions"))).toBe(true);
+    expect(run([d, "--manifest", path.join(d, "nope.json")]).code).toBe(2);
+  });
+
   it("--rules lists every rule with a docs URL", () => {
     const r = run(["--rules"]);
     expect(r.out).toMatch(/photoshop-await-in-modal/);

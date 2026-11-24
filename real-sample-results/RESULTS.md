@@ -25,7 +25,7 @@ Each finding below is judged against the documentation or data. **None of them h
 
 ## Premiere Pro samples (2)
 
-- `gap` in metadata-handler/styles.css is flagged because Jarda's data marks it unsupported in UXP 8.1.0. **This is probably stale data:** Adobe ships it in its own sample. It needs a check in Premiere. If it works, the data should mark `gap` as supported from some UXP 8.x version.
+- `gap` in metadata-handler/styles.css is flagged because Jarda's data marks it unsupported in UXP 8.1.0. *Update (hardening pass):* a forum thread ([does-css-gap-work-in-uxp-panels-for-prpro/11310](https://forums.creativeclouddeveloper.com/t/does-css-gap-work-in-uxp-panels-for-prpro/11310)) reports `gap` not taking effect in Premiere panels, so this report is kept as a true positive and the thread is cited in the rule's sources.
 - `<em>` in premiere-api/public/index.html is backed by the docs.
 
 ## InDesign samples (5)

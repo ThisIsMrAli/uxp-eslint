@@ -23,7 +23,7 @@ jsTester().run("api-min-version", R, {
     { code: "const { app } = require('photoshop'); app.getColorProfiles()", settings: ps("23.5.0"), errors: [{ messageId: "hostTooOld" }] },
     { code: "new ResizeObserver(cb)", settings: ps("26.0.0".replace("26", "25")), errors: [{ messageId: "uxpTooOld" }] },
     { code: "const r = new Request('x')", settings: ps("24.0.0"), errors: [{ messageId: "uxpTooOld" }] },
-    { code: "window.IntersectionObserver", settings: ps("25.0.0"), errors: [{ messageId: "uxpTooOld" }] },
+    { code: "new window.IntersectionObserver(cb)", settings: ps("25.0.0"), errors: [{ messageId: "uxpTooOld" }] },
     { code: "require('uxp').userInfo.userId()", settings: ps("24.0.0"), errors: [{ messageId: "uxpTooOld" }] },
     { code: "const { userInfo } = require('uxp'); userInfo.userId()", settings: ps("24.0.0"), errors: [{ messageId: "uxpTooOld" }] },
     { code: "navigator.clipboard.writeText('x')", settings: ps("23.0.0"), errors: [{ messageId: "uxpTooOld" }] },

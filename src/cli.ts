@@ -3,7 +3,7 @@
 import { ESLint } from "eslint";
 import { resolve, join, relative, sep } from "node:path";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { uxpConfig, findProjects, classifyFolders, DEFAULT_IGNORES, parseManifest } from "./node.js";
+import { uxpConfig, findProjects, projectFor, classifyFolders, DEFAULT_IGNORES, parseManifest } from "./node.js";
 import { uxpForHost } from "./util/version.js";
 import { stylish, github, sarif, json, type RunInfo } from "./report.js";
 import { rules } from "./rules/index.js";
@@ -20,6 +20,7 @@ Usage: uxp-lint [dir] [options]
   --fix                 apply safe autofixes and report how many were fixed
   --quiet               errors only
   --max-warnings <n>    exit 1 when warnings exceed n
+  --manifest <file>     use this manifest.json (e.g. dist/manifest.json after a bolt-uxp build)
   --ignore <globs>      extra comma-separated ignore globs
   --no-default-ignores  also lint tests, tooling, WebView/CEP folders and generated files
   --init                write an eslint.config.mjs that uses eslint-plugin-uxp-lint
@@ -33,7 +34,7 @@ Docs: https://github.com/ThisIsMrAli/uxp-eslint#readme
 `;
 
 const args = process.argv.slice(2);
-const VALUE_FLAGS = new Set(["--format", "-f", "--output", "-o", "--ignore", "--max-warnings"]);
+const VALUE_FLAGS = new Set(["--format", "-f", "--output", "-o", "--ignore", "--max-warnings", "--manifest"]);
 const flag = (...n: string[]) => n.some((x) => args.includes(x));
 const val = (...n: string[]) => { for (const x of n) { const i = args.indexOf(x); if (i >= 0) return args[i + 1]; } return undefined; };
 const positional = args.filter((a, i) => !a.startsWith("-") && !VALUE_FLAGS.has(args[i - 1] ?? ""));
@@ -71,9 +72,11 @@ async function main() {
   const extraIgnores = val("--ignore")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
 
   const started = Date.now();
-  const projects = findProjects(dir);
+  const manifestArg = val("--manifest");
+  if (manifestArg && !existsSync(resolve(manifestArg))) fail(`no such manifest: ${manifestArg}`);
+  const projects = manifestArg ? [projectFor(resolve(manifestArg), dir)] : findProjects(dir);
   const skipped = defaults ? dedupe(projects.length ? projects.flatMap((p) => p.skipped) : classifyFolders(dir, dir)) : [];
-  const config = await uxpConfig({ cwd: dir, level: flag("--strict") ? "strict" : "recommended", defaultIgnores: defaults, ignores: extraIgnores, ...(defaults ? {} : { settings: { lintGenerated: true, lintNodeScripts: true } }) });
+  const config = await uxpConfig({ cwd: dir, ...(manifestArg ? { manifest: resolve(manifestArg) } : {}), level: flag("--strict") ? "strict" : "recommended", defaultIgnores: defaults, ignores: extraIgnores, ...(defaults ? {} : { settings: { lintGenerated: true, lintNodeScripts: true } }) });
   const globalIgnores = [...(defaults ? DEFAULT_IGNORES.filter((g) => !g.startsWith("!")) : ["**/node_modules/**"]), ...extraIgnores, ...skipped.map((s) => { const r = relative(dir, s.path).split(sep).join("/"); return /\.[a-z]+$/i.test(r) ? r : `${r}/**`; })];
   const make = (fix: boolean) => new ESLint({
     cwd: dir,
@@ -142,7 +145,9 @@ function dedupe<T extends { path: string }>(xs: T[]): T[] {
 function init(dir: string): number {
   const target = join(dir, "eslint.config.mjs");
   const existing = ["eslint.config.js", "eslint.config.mjs", "eslint.config.cjs", "eslint.config.ts"].find((f) => existsSync(join(dir, f)));
-  const projects = findProjects(dir);
+  const manifestArg = val("--manifest");
+  if (manifestArg && !existsSync(resolve(manifestArg))) fail(`no such manifest: ${manifestArg}`);
+  const projects = manifestArg ? [projectFor(resolve(manifestArg), dir)] : findProjects(dir);
   const pkgPath = join(dir, "package.json");
   const pkg = existsSync(pkgPath) ? (JSON.parse(readFileSync(pkgPath, "utf8")) as Record<string, Record<string, string> | undefined>) : {};
   const has = (n: string) => !!(pkg.dependencies?.[n] || pkg.devDependencies?.[n]);

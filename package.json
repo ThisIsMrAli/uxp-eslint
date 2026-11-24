@@ -24,7 +24,8 @@
     "data",
     "README.md",
     "LICENSE",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "INTEGRATION.md"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -59,7 +60,8 @@
     "data": "node scripts/build-data.mjs",
     "test": "npm run build && vitest run",
     "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.browser.json",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "npm run build && npm test",
+    "docs": "npm run build && node scripts/gen-docs.mjs"
   },
   "peerDependencies": {
     "@eslint/css": ">=0.10.0",

@@ -110,12 +110,16 @@ jsTester().run("api-min-version (forum)", rule("api-min-version"), {
     // DOM v2 @minVersion tags of 23.0 on APIs that existed in 22.x are not reported (floor policy)
     { code: "const { app } = require('photoshop'); app.activeDocument.name", settings: ps("22.0.0") },
     { code: "window.matchMedia?.('(prefers-color-scheme: dark)')", settings: ps("23.0.0") },
+    // the feature probe itself is not a use
+    { code: "if (window.ResizeObserver) new ResizeObserver(f);", settings: ps("24.0.0") },
+    { code: "const RO = window.ResizeObserver; if (RO) new RO(f);", settings: ps("24.0.0") },
   ],
   invalid: [
     // forum 8224: "getEntryWithUrl method has been supported from Photoshop 24.2, UXP version 6.5"
     { code: "const { localFileSystem } = require('uxp').storage; localFileSystem.getEntryWithUrl('plugin-temp:/x');", settings: ps("23.3.0"), errors: [{ message: /`localFileSystem\.getEntryWithUrl` needs UXP 6\.5\.0\+/ }] },
     { code: "const fs = require('uxp').storage.localFileSystem; fs.getEntryWithUrl('plugin-temp:/x');", settings: ps("23.3.0"), errors: [{ messageId: "uxpTooOld" }] },
     { code: "console.log(navigator.language)", settings: ps("25.0.0"), errors: [{ messageId: "uxpTooOld" }] },
+    { code: "new window.ResizeObserver(f);", settings: ps("24.0.0"), errors: [{ messageId: "uxpTooOld" }] },
   ],
 });
 
@@ -181,4 +185,23 @@ jsonTester().run("valid-manifest (real-world)", rule("valid-manifest"), {
     // ComfyPanel shape: `main` inside an entrypoint (forum 10557)
     { code: JSON.stringify(manifest({ entrypoints: [{ type: "panel", id: "p", main: "index.html" }] })), filename: "manifest.json", errors: [{ messageId: "entrypointMain" }] },
   ],
+});
+
+// ---------------------------------------------------------------- multi-host manifests (hyperbrew/bolt-uxp, tokyosheep/PhotoshopUXPMulti-window)
+const multi = settings(manifest({ host: [{ app: "PS", minVersion: "24.2.0" }, { app: "premierepro", minVersion: "25.6.0" }] }));
+jsTester().run("multi-host manifests", rule("api-min-version"), {
+  valid: [
+    // shared code is held to the newest UXP any host ships
+    { code: "const { xmp } = require('uxp'); new xmp.XMPMeta();", settings: multi, filename: "src/shared.js" },
+    // a Premiere-only file is judged against the Premiere host
+    { code: "const { xmp } = require('uxp'); new xmp.XMPMeta();", settings: multi, filename: "bolt-uxp-utils/src/ppro.ts" },
+  ],
+  invalid: [
+    // a Photoshop-only file is judged against the Photoshop host
+    { code: "const { xmp } = require('uxp'); new xmp.XMPMeta();", settings: multi, filename: "src/api/photoshop.js", errors: [{ messageId: "uxpTooOld" }, { messageId: "uxpTooOld" }] },
+  ],
+});
+jsTester().run("multi-host manifests (Photoshop rules)", rule("photoshop-modal-scope"), {
+  valid: [{ code: "const { action } = require('photoshop'); btn.onclick = () => action.batchPlay([{ _obj: 'set' }], {});", settings: multi, filename: "src/ppro/panel.js" }],
+  invalid: [{ code: "const { action } = require('photoshop'); btn.onclick = () => action.batchPlay([{ _obj: 'set' }], {});", settings: multi, filename: "src/ps/panel.js", errors: [{ messageId: "batchPlayOutsideModal" }] }],
 });

@@ -5,6 +5,8 @@ import { ModuleTracker, memberPath, stripGlobal, isGlobalReference, propertyName
 import { isOlder, compareVersions } from "../util/version.js";
 import uxpSince from "../data/generated/uxp-since.js";
 import psMin from "../data/generated/photoshop-min-versions.js";
+import { BROWSER_GLOBAL_OBJECTS } from "../util/ast.js";
+import { SOURCES } from "../data/sources.js";
 import { CURATED_SINCE } from "../data/curated-since.js";
 
 type Options = [{ typeAware?: boolean; checkDomMembers?: boolean }];
@@ -33,7 +35,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description: "Disallow UXP and Photoshop APIs that are newer than the manifest's host.minVersion",
       recommended: true,
-      sources: ["@types/photoshop @minVersion tags", "AdobeDocs/uxp reference-js **Since** lines", "jardicc/vscode-uxp-validator host→UXP table"],
+      sources: ["@types/photoshop @minVersion tags", "AdobeDocs/uxp reference-js **Since** lines", "jardicc/vscode-uxp-validator host→UXP table", SOURCES.psChangelog, SOURCES.uxpChangelog, SOURCES.forum8224],
     },
     schema: [{ type: "object", properties: { typeAware: { type: "boolean" }, checkDomMembers: { type: "boolean" } }, additionalProperties: false }],
     messages: {
@@ -55,8 +57,13 @@ export default createRule<Options, MessageIds>({
 
     const guarded = (node: TSESTree.Node, text: string): boolean => {
       if (isOptionalUse(node)) return true;
+      // `window.X` read without calling, constructing or dereferencing it is a feature probe (undefined when missing)
+      const par = node.parent;
+      if (node.type === "MemberExpression" && node.object.type === "Identifier" && BROWSER_GLOBAL_OBJECTS.has(node.object.name)
+        && !(par?.type === "CallExpression" && par.callee === node) && !(par?.type === "NewExpression" && par.callee === node) && !(par?.type === "MemberExpression" && par.object === node)) return true;
       for (let p: TSESTree.Node | undefined = node.parent; p; p = p.parent) {
         const test = p.type === "IfStatement" || p.type === "ConditionalExpression" ? p.test : p.type === "LogicalExpression" ? p.left : null;
+        if (test && node.range[0] >= test.range[0] && node.range[1] <= test.range[1]) return true; // the probe itself
         if (test && test !== node && sourceCode.getText(test).includes(text)) return true;
         if (p.type === "TryStatement" && p.block && node.range[0] >= p.block.range[0] && node.range[1] <= p.block.range[1]) return true;
       }
