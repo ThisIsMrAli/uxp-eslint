@@ -43,6 +43,8 @@ export interface UxpSettings {
   lintGenerated?: boolean;
   /** Also lint Node-only scripts (shebang or `node:` imports; default false: skipped). */
   lintNodeScripts?: boolean;
+  /** entrypoints.setup() is spread over several files/bundles: entrypoints-match-manifest then skips "missing handler" reports. uxpConfig() detects this. */
+  splitSetup?: boolean;
 }
 
 /**

@@ -19,8 +19,9 @@ export const JS_RECOMMENDED = r({
   "no-unsupported-fs-method": "error",
   "no-node-builtin-modules": "error",
   "entrypoints-match-manifest": "error",
+  "no-deprecated-api": "warn",
 });
-export const JS_PHOTOSHOP = r({ "photoshop-modal-scope": "error", "photoshop-handle-modal-errors": "warn" });
+export const JS_PHOTOSHOP = r({ "photoshop-modal-scope": "error", "photoshop-handle-modal-errors": "warn", "photoshop-await-in-modal": "warn" });
 export const JS_STRICT = r({
   "manifest-permissions": "error",
   "api-min-version": "error",
@@ -30,6 +31,7 @@ export const JS_STRICT = r({
   "no-unsupported-fs-method": "error",
   "no-node-builtin-modules": "error",
   "entrypoints-match-manifest": "error",
+  "no-deprecated-api": "error",
 });
 export const CSS_RULES = r({ "no-unsupported-css": "warn" });
 export const CSS_STRICT = r({ "no-unsupported-css": ["error", { ignoreVendorPrefixed: false }] });

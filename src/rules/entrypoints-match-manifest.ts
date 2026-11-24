@@ -29,6 +29,7 @@ export default createRule<Options, MessageIds>({
     if (!eps) return {};
     const byType: Record<string, Set<string>> = { panel: new Set(), command: new Set() };
     for (const e of eps) if (e && typeof e.id === "string" && typeof e.type === "string" && byType[e.type]) byType[e.type]!.add(e.id);
+    const splitSetup = ((context.settings as { uxp?: { splitSetup?: boolean } }).uxp?.splitSetup) === true;
     const tracker = new ModuleTracker(new Set(["uxp"]));
     const calls: TSESTree.CallExpression[] = [];
     return mergeVisitors(tracker.visitors(), {
@@ -56,7 +57,7 @@ export default createRule<Options, MessageIds>({
               if (byType[other]!.has(id)) context.report({ node: p.key, messageId: "wrongKind", data: { id, actual: other, key: key! } });
               else context.report({ node: p.key, messageId: "notInManifest", data: { id, kind } });
             }
-            if (opts.reportMissing !== false && !dynamic) for (const id of byType[kind]!) if (!seen.has(id)) context.report({ node: section.key, messageId: "missingHandler", data: { id, kind } });
+            if (opts.reportMissing !== false && !dynamic && !splitSetup) for (const id of byType[kind]!) if (!seen.has(id)) context.report({ node: section.key, messageId: "missingHandler", data: { id, kind } });
           }
         }
       },

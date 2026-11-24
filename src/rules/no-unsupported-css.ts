@@ -6,7 +6,14 @@ import { SOURCES } from "../data/sources.js";
 type Options = [{ ignore?: string[]; ignoreVendorPrefixed?: boolean; checkValues?: boolean; ignoreBuildTimeAtRules?: boolean }];
 /** At-rules consumed by Tailwind/PostCSS at build time; they never reach UXP. */
 const BUILD_TIME_AT_RULES = new Set(["tailwind", "apply", "layer", "config", "screen", "variants", "responsive", "theme", "source", "plugin", "utility", "custom-variant", "reference"]);
-type MessageIds = "unsupported" | "newer";
+type MessageIds = "unsupported" | "newer" | "needsCssNext";
+/** UXP 8.0.1 changelog: new CSS capabilities gated by `featureFlags.CSSNextSupport` (true, or a list of group names). */
+const CSS_NEXT: Record<string, { group: string; kind: "properties" | "functionNames" }> = {
+  "transform-origin": { group: "transformProperties", kind: "properties" },
+  translate: { group: "transformProperties", kind: "properties" },
+  scaleX: { group: "transformFunctions", kind: "functionNames" },
+  scaleY: { group: "transformFunctions", kind: "functionNames" },
+};
 
 // Minimal css-tree node shapes (from @eslint/css); kept local so @eslint/css stays an optional peer.
 interface Loc { loc: { start: { line: number; column: number }; end: { line: number; column: number } } }
@@ -19,17 +26,30 @@ export default createRule<Options, MessageIds>({
     docs: {
       description: "Disallow CSS properties, values, at-rules, pseudo selectors, units and functions that the target UXP version does not support (CSS files, via @eslint/css)",
       recommended: true,
-      sources: ["jardicc/vscode-uxp-validator UXP CSS data (MIT)", SOURCES.knownIssues, "AdobeDocs/uxp reference-css"],
+      sources: ["jardicc/vscode-uxp-validator UXP CSS data (MIT)", SOURCES.knownIssues, "AdobeDocs/uxp reference-css", SOURCES.uxpChangelog],
     },
     schema: [{ type: "object", properties: { ignore: { type: "array", items: { type: "string" } }, ignoreVendorPrefixed: { type: "boolean" }, checkValues: { type: "boolean" }, ignoreBuildTimeAtRules: { type: "boolean" } }, additionalProperties: false }],
     messages: {
       unsupported: "{{kind}} `{{name}}` is not supported by UXP{{target}}.",
       newer: "{{kind}} `{{name}}` needs UXP {{since}}+, but the target is UXP {{uxp}}.",
+      needsCssNext: "{{kind}} `{{name}}` only takes effect with `\"featureFlags\": { \"CSSNextSupport\": true }` (or [\"{{group}}\"]) in manifest.json (UXP 8.0 changelog).",
     },
   },
   defaultOptions: [{ ignore: [], ignoreVendorPrefixed: true, checkValues: true, ignoreBuildTimeAtRules: true }],
   create(context, [opts]) {
-    const uxpVersion = getUxp(context).uxpVersion;
+    const uxp = getUxp(context);
+    const uxpVersion = uxp.uxpVersion;
+    const flags = (uxp.manifest?.featureFlags ?? null) as Record<string, unknown> | null;
+    const cssNextOn = (group: string) => {
+      const v = flags?.CSSNextSupport;
+      return v === true || (Array.isArray(v) && v.includes(group)) || flags?.enableSWCSupport === true;
+    };
+    const checkCssNext = (node: Loc, kind: string, name: string) => {
+      const n = CSS_NEXT[name];
+      if (!n || !uxp.manifest || cssNextOn(n.group) || ignore.has(name.toLowerCase())) return;
+      if (!checkCss(n.kind, name, uxpVersion).ok) return; // already reported as needing a newer UXP
+      context.report({ loc: node.loc, messageId: "needsCssNext", data: { kind, name, group: n.group } });
+    };
     const ignore = new Set((opts.ignore ?? []).map((x) => x.toLowerCase()));
     const target = uxpVersion ? ` ${uxpVersion}` : "";
     const report = (node: Loc, kind: string, name: string, v: CssVerdict) => {
@@ -48,6 +68,7 @@ export default createRule<Options, MessageIds>({
         if (!v.ok && matchesUxpDefault(prop, context.sourceCode.getText(node.value as never))) { skipValues++; return; }
         report(node, "Property", prop, v);
         if (!v.ok) { skipValues++; return; }
+        checkCssNext(node, "Property", prop);
         if (opts.checkValues === false) return;
         const kids = node.value?.children?.filter((c) => c.type !== "WhiteSpace") ?? [];
         if (kids.length === 1 && kids[0]!.type === "Identifier" && kids[0]!.name) {
@@ -69,6 +90,7 @@ export default createRule<Options, MessageIds>({
         if (skipValues) return;
         if (!node.name || !isKnownWebFunction(node.name)) return;
         report(node, "Function", `${node.name}()`, checkCss("functionNames", node.name, uxpVersion));
+        checkCssNext(node, "Function", node.name);
       },
       // Media features: css-tree Feature nodes
       Feature(node: CssNode) { if (node.name) report(node, "Media feature", node.name, checkCss("mediaFeatures", node.name, uxpVersion)); },

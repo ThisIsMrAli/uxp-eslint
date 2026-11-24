@@ -10,6 +10,8 @@ import entrypointsMatchManifest from "./entrypoints-match-manifest.js";
 import validManifest from "./valid-manifest.js";
 import photoshopModalScope from "./photoshop-modal-scope.js";
 import photoshopHandleModalErrors from "./photoshop-handle-modal-errors.js";
+import photoshopAwaitInModal from "./photoshop-await-in-modal.js";
+import noDeprecatedApi from "./no-deprecated-api.js";
 
 export const rules = {
   "manifest-permissions": manifestPermissions,
@@ -24,5 +26,7 @@ export const rules = {
   "valid-manifest": validManifest,
   "photoshop-modal-scope": photoshopModalScope,
   "photoshop-handle-modal-errors": photoshopHandleModalErrors,
+  "photoshop-await-in-modal": photoshopAwaitInModal,
+  "no-deprecated-api": noDeprecatedApi,
 };
 export type RuleName = keyof typeof rules;

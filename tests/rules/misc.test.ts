@@ -55,6 +55,8 @@ jsTester().run("entrypoints-match-manifest", rule("entrypoints-match-manifest"),
     { code: "require('uxp').entrypoints.setup({ panels: { mainPanel: {} }, commands: { ...cmds } })", settings: settings() },
     { code: "entrypoints.setup({ panels: { nope: {} } })", settings: settings() },
     { code: "const { entrypoints } = require('uxp'); entrypoints.setup({ panels: { nope: {} } })" },
+    // jardicc/alchemist sets up each panel from its own bundle (uxpConfig detects this as splitSetup)
+    { code: "const { entrypoints } = require('uxp'); entrypoints.setup({ panels: { mainPanel: {} } })", settings: { uxp: { manifest: manifest(), splitSetup: true } } },
   ],
   invalid: [
     { code: "const { entrypoints } = require('uxp'); entrypoints.setup({ panels: { mainPanle: {} }, commands: { doIt() {} } })", settings: settings(), errors: [{ messageId: "missingHandler", data: { id: "mainPanel", kind: "panel" } }, { messageId: "notInManifest", data: { id: "mainPanle", kind: "panel" } }] },

@@ -192,6 +192,14 @@ export function buildModalGraph(ast: Node, visitorKeys: Record<string, readonly 
   for (const nm of rootNames) for (const f of fnsByName.get(nm) ?? []) direct.add(f);
   for (const f of direct) root.add(f);
   const ctxIsRoot = (n: Node): boolean => { const f = innermost(n); return !f || root.has(f); };
+  // name -> calls of that name, and name -> INHERIT_APIS calls that pass it as a callback (avoids O(fns x calls) per pass)
+  const callsByName = new Map<string, TSESTree.CallExpression[]>();
+  const passedByName = new Map<string, TSESTree.CallExpression[]>();
+  for (const c of calls) {
+    const nm = calleeName(c);
+    if (nm) { const l = callsByName.get(nm); if (l) l.push(c); else callsByName.set(nm, [c]); }
+    if (nm && INHERIT_APIS.has(nm)) for (const a of c.arguments) { const r = refName(a as Node); if (r) { const l = passedByName.get(r); if (l) l.push(c); else passedByName.set(r, [c]); } }
+  }
   for (let changed = true, pass = 0; changed && pass < 20; pass++) {
     changed = false;
     for (const f of allFns) {
@@ -204,7 +212,7 @@ export function buildModalGraph(ast: Node, visitorKeys: Record<string, readonly 
       if (p?.type === "NewExpression" && p.callee.type === "Identifier" && p.callee.name === "Promise" && ctxIsRoot(p)) isRoot = true;
       if (!isRoot) {
         const nm = fnName(f);
-        if (nm) isRoot = calls.some((c) => calleeName(c) === nm && ctxIsRoot(c)) || calls.some((c) => INHERIT_APIS.has(calleeName(c) ?? "") && c.arguments.some((a) => refName(a as Node) === nm) && ctxIsRoot(c));
+        if (nm) isRoot = (callsByName.get(nm) ?? []).some(ctxIsRoot) || (passedByName.get(nm) ?? []).some(ctxIsRoot);
       }
       if (isRoot) { root.add(f); changed = true; }
     }

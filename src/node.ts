@@ -91,6 +91,8 @@ export interface UxpProject {
   manifestError?: string;
   /** Unsupported HTML elements the project's CSS already styles (Adobe's documented workaround). */
   styledElements?: string[];
+  /** entrypoints.setup() is called from more than one file, so one call need not handle every manifest entrypoint. */
+  splitSetup?: boolean;
 }
 
 /** UXP projects under cwd: the manifest plus the folder whose sources should be linted. A manifest kept in plugin/ or public/ next to a package.json lints the parent project (src/ etc.). */
@@ -109,6 +111,7 @@ export function findProjects(cwd = process.cwd(), depth = 5): UxpProject[] {
       skipped: classifyFolders(root, dirname(m.path), manifestDirs),
       reactVersion: pkgDir ? reactMajor(join(pkgDir, "package.json")) : undefined,
       styledElements: styledElements(root),
+      ...(setupFileCount(root) > 1 ? { splitSetup: true } : {}),
       ...(m.error ? { manifestError: m.error } : {}),
     };
   });
@@ -203,6 +206,26 @@ export function styledElements(root: string): string[] {
   return WORKAROUND_ELEMENTS.filter((e) => found.has(e));
 }
 
+/** Number of source files under root that call entrypoints.setup (more than one means panels are set up in separate bundles). */
+export function setupFileCount(root: string): number {
+  let count = 0;
+  let budget = 3000;
+  const walk = (dir: string, d: number) => {
+    let entries: import("node:fs").Dirent[];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (budget <= 0 || count > 1) return;
+      const p = join(dir, e.name);
+      if (e.isDirectory()) { if (d < 8 && !SKIP.has(e.name) && !e.name.startsWith(".")) walk(p, d + 1); continue; }
+      if (!/\.(c|m)?(j|t)sx?$|\.svelte$|\.vue$/i.test(e.name) || /\.(d|min)\./.test(e.name)) continue;
+      budget--;
+      try { if (statSync(p).size > 2_000_000) continue; if (/\bentrypoints\s*\.\s*setup\s*\(/.test(readFileSync(p, "utf8"))) count++; } catch { /* unreadable */ }
+    }
+  };
+  walk(root, 0);
+  return count;
+}
+
 /** Type selectors used in a stylesheet (or the <style> blocks of an HTML file). Declaration blocks are stripped first. */
 export function cssTypeSelectors(text: string): Set<string> {
   let css = text;
@@ -272,7 +295,7 @@ export async function uxpConfig(opts: NodeConfigOptions = {}) {
       ...shared,
       manifest: manifest ?? undefined,
       ...(manifest ? {} : { manifestText: existsSync(p.manifest) ? readFileSync(p.manifest, "utf8") : undefined }),
-      settings: { ...(p.reactVersion ? { reactVersion: p.reactVersion } : {}), ...(p.styledElements?.length ? { styledElements: p.styledElements } : {}), ...(opts.settings ?? {}) },
+      settings: { ...(p.reactVersion ? { reactVersion: p.reactVersion } : {}), ...(p.styledElements?.length ? { styledElements: p.styledElements } : {}), ...(p.splitSetup ? { splitSetup: true } : {}), ...(opts.settings ?? {}) },
       base: rel ? `${rel}/` : "",
       ignores: [...(useDefaults ? DEFAULT_IGNORES : []), ...detected, ...(opts.ignores ?? [])],
     });

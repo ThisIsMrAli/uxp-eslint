@@ -174,6 +174,7 @@ export default [
 }
 
 main().then((code) => { process.exitCode = code; }, (e: unknown) => {
-  process.stderr.write(`uxp-lint: ${(e as Error)?.stack ?? String(e)}\n`);
+  const err = e as Error;
+  process.stderr.write(`uxp-lint: ${err?.message ?? String(e)}\n${process.env.DEBUG ? `${err?.stack ?? ""}\n` : "(set DEBUG=1 for a stack trace)\n"}`);
   process.exitCode = 2;
 });
