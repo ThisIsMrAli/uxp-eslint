@@ -1,6 +1,6 @@
 import type { TSESTree } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
-import { memberPath, stripGlobal, isGlobalReference, staticString, propertyName } from "../util/ast.js";
+import { memberPath, stripGlobal, isGlobalReference, staticString, propertyName, isFeatureDetected } from "../util/ast.js";
 import { UNAVAILABLE_GLOBALS, UNSUPPORTED_EVENTS } from "../data/web-api.js";
 import { SOURCES } from "../data/sources.js";
 
@@ -32,6 +32,7 @@ export default createRule<Options, MessageIds>({
     const byName = new Map(facts);
     const reportFact = (node: TSESTree.Node, key: string) => {
       const f = byName.get(key);
+      if (f && isFeatureDetected(sourceCode, node, key.split(".").pop()!)) return;
       if (f) context.report({ node, messageId: "unavailable", data: { message: f.message, confidence: f.confidence, source: f.source } });
     };
     return {

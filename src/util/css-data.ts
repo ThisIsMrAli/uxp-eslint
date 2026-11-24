@@ -35,3 +35,14 @@ export function isKnownWebFunction(name: string): boolean {
 export function hasProperty(name: string): boolean {
   return !!data.properties[name.toLowerCase()];
 }
+
+/**
+ * Declarations that ask for what UXP already does, so the missing property support changes nothing.
+ * box-sizing: UXP always lays out with border-box ("UXP does not support the content-sizing box layout model";
+ * AdobeDocs/uxp reference-css, Styles/padding-bottom.md and others, "Quirks and Exceptions").
+ */
+const MATCHES_UXP_DEFAULT: Record<string, Set<string>> = { "box-sizing": new Set(["border-box", "inherit", "initial", "unset"]) };
+export function matchesUxpDefault(property: string, value: string | null | undefined): boolean {
+  if (!value) return false;
+  return MATCHES_UXP_DEFAULT[property.toLowerCase()]?.has(value.trim().toLowerCase().replace(/\s*!important$/, "")) ?? false;
+}

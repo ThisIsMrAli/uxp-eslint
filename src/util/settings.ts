@@ -7,6 +7,8 @@ export interface UxpManifest {
   main?: string;
   host?: { app?: string; minVersion?: string; data?: Record<string, unknown> } | { app?: string; minVersion?: string }[];
   entrypoints?: { type?: string; id?: string; main?: string }[];
+  /** Alternate spelling accepted by UXP and used by shipping plugins (e.g. Alchemist). */
+  entryPoints?: { type?: string; id?: string; main?: string }[];
   requiredPermissions?: {
     network?: { domains?: string[] | "all" | string };
     clipboard?: "read" | "readAndWrite" | string;
@@ -33,6 +35,14 @@ export interface UxpSettings {
   hostMinVersion?: string;
   /** Override the minimum UXP version. Defaults to the version mapped from host.minVersion. */
   uxpVersion?: string;
+  /** React major version used by the plugin (uxpConfig reads it from package.json). React 19+ forwards custom-element events. */
+  reactVersion?: number;
+  /** Unsupported elements (ul, li, strong, title, ...) the project's CSS already styles, Adobe's documented workaround; not reported. */
+  styledElements?: string[];
+  /** Also lint generated/minified bundles (default false: skipped). */
+  lintGenerated?: boolean;
+  /** Also lint Node-only scripts (shebang or `node:` imports; default false: skipped). */
+  lintNodeScripts?: boolean;
 }
 
 /**

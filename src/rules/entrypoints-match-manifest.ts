@@ -25,9 +25,10 @@ export default createRule<Options, MessageIds>({
   defaultOptions: [{ reportMissing: true }],
   create(context, [opts]) {
     const m = getUxp(context).manifest;
-    if (!m || !Array.isArray(m.entrypoints)) return {};
+    const eps = m ? (Array.isArray(m.entrypoints) ? m.entrypoints : Array.isArray(m.entryPoints) ? m.entryPoints : null) : null;
+    if (!eps) return {};
     const byType: Record<string, Set<string>> = { panel: new Set(), command: new Set() };
-    for (const e of m.entrypoints) if (e && typeof e.id === "string" && typeof e.type === "string" && byType[e.type]) byType[e.type]!.add(e.id);
+    for (const e of eps) if (e && typeof e.id === "string" && typeof e.type === "string" && byType[e.type]) byType[e.type]!.add(e.id);
     const tracker = new ModuleTracker(new Set(["uxp"]));
     const calls: TSESTree.CallExpression[] = [];
     return mergeVisitors(tracker.visitors(), {

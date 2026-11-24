@@ -1,7 +1,7 @@
 import type { TSESTree } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
 import { getUxp } from "../util/settings.js";
-import { checkCss, checkCssValue } from "../util/css-data.js";
+import { checkCss, checkCssValue, matchesUxpDefault } from "../util/css-data.js";
 import { keyName, staticString, propertyName } from "../util/ast.js";
 
 type Options = [{ ignore?: string[] }];
@@ -34,6 +34,7 @@ export default createRule<Options, MessageIds>({
       const name = kebab(jsName);
       if (name.startsWith("--") || /^-[a-z]+-/.test(name) || ignore.has(name)) return;
       const v = checkCss("properties", name, uxpVersion);
+      if (!v.ok && matchesUxpDefault(name, staticString(valueNode))) return;
       if (!v.ok) {
         if (v.reason === "unsupported") context.report({ node, messageId: "unsupported", data: { name, target } });
         else context.report({ node, messageId: "newer", data: { name, since: v.since, uxp: uxpVersion ?? "?" } });

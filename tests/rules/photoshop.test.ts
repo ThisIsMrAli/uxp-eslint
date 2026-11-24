@@ -37,8 +37,8 @@ jsTester().run("photoshop-handle-modal-errors", rule("photoshop-handle-modal-err
     "const { core } = require('photoshop'); async function run() { return await core.executeAsModal(f, {commandName:'x'}); }",
   ],
   invalid: [
-    { code: "const { core } = require('photoshop'); await core.executeAsModal(f, {commandName:'x'});", errors: [{ messageId: "unhandled" }] },
-    { code: "const { core } = require('photoshop'); btn.onclick = async () => { await core.executeAsModal(f, {commandName:'x'}); };", errors: [{ messageId: "unhandled" }] },
+    { code: "const { core } = require('photoshop'); await core.executeAsModal(f, {commandName:'x'});", errors: [{ messageId: "unhandledInHandler" }] },
+    { code: "const { core } = require('photoshop'); btn.onclick = async () => { await core.executeAsModal(f, {commandName:'x'}); };", errors: [{ messageId: "unhandledInHandler" }] },
     { code: "const { core } = require('photoshop'); core.executeAsModal(f, {commandName:'x'});", errors: [{ messageId: "unhandled" }] },
   ],
 });

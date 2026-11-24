@@ -41,6 +41,5 @@ jsTester().run("no-unsupported-html (jsx)", R, {
     { code: "const a = <input type='file' />", errors: [{ messageId: "inputType" }] },
     { code: "const a = <input defaultValue='x' />", errors: [{ messageId: "defaultValue" }] },
     { code: "const a = <sp-textfield onChange={f} />", errors: [{ messageId: "spEvent", data: { name: "onChange", el: "sp-textfield" } }] },
-    { code: "const a = <sp-slider onInput={f} />", errors: [{ messageId: "spEvent" }] },
   ],
 });

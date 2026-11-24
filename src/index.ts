@@ -9,7 +9,7 @@ export type { UxpManifest, UxpSettings } from "./util/settings.js";
 export type { BuildConfigOptions, Host } from "./configs.js";
 export { uxpForHost, compareVersions } from "./util/version.js";
 
-const VERSION = "0.1.0";
+import { VERSION } from "./version.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FlatConfig = Record<string, any>;
@@ -38,19 +38,22 @@ export function buildConfig(opts: BuildConfigOptions = {}): FlatConfig[] {
     return (opts.host ?? app) as Host | undefined;
   })();
   const b = (globs: string[]) => globs.map((g) => `${opts.base ?? ""}${g}`);
+  const tag = opts.base ? ` (${opts.base.replace(/\/$/, "")})` : "";
+  const ign = opts.ignores?.length ? { ignores: [...opts.ignores] } : {};
   const out: FlatConfig[] = [
     {
-      name: "uxp-lint/js",
+      name: `uxp-lint/js${tag}`,
       files: b(JS_FILES),
+      ...ign,
       plugins: { [PREFIX]: plugin, ...(opts.tsPlugin ? { "@typescript-eslint": opts.tsPlugin } : {}) },
       settings,
       languageOptions: { ecmaVersion: "latest", sourceType: "module", parserOptions: { ecmaFeatures: { jsx: true } }, ...(opts.tsParser ? { parser: opts.tsParser } : {}) },
       rules: hostRules(manifestHost, strict),
     },
   ];
-  if (opts.css) out.push({ name: "uxp-lint/css", files: b(CSS_FILES), plugins: { [PREFIX]: plugin, css: opts.css }, language: "css/css", settings, rules: strict ? CSS_STRICT : CSS_RULES });
-  if (opts.htmlParser) out.push({ name: "uxp-lint/html", files: b(HTML_FILES), plugins: { [PREFIX]: plugin }, languageOptions: { parser: opts.htmlParser }, settings, rules: HTML_RULES });
-  if (opts.json) out.push({ name: "uxp-lint/manifest", files: b(MANIFEST_FILES), plugins: { [PREFIX]: plugin, json: opts.json }, language: "json/json", rules: MANIFEST_RULES });
+  if (opts.css) out.push({ name: `uxp-lint/css${tag}`, files: b(CSS_FILES), ...ign, plugins: { [PREFIX]: plugin, css: opts.css }, language: "css/css", settings, rules: strict ? CSS_STRICT : CSS_RULES });
+  if (opts.htmlParser) out.push({ name: `uxp-lint/html${tag}`, files: b(HTML_FILES), ...ign, plugins: { [PREFIX]: plugin }, languageOptions: { parser: opts.htmlParser }, settings, rules: HTML_RULES });
+  if (opts.json) out.push({ name: `uxp-lint/manifest${tag}`, files: b(MANIFEST_FILES), ...ign, plugins: { [PREFIX]: plugin, json: opts.json }, language: "json/json", rules: MANIFEST_RULES });
   return out;
 }
 

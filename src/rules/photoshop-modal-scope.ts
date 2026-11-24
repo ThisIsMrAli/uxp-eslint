@@ -2,10 +2,12 @@ import type { TSESTree, TSESLint } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
 import { getUxp, photoshopApiVersion } from "../util/settings.js";
 import { ModuleTracker, propertyName, keyName, staticString, unwrap, mergeVisitors } from "../util/ast.js";
+import { buildModalGraph, calleeName, fnName, type Fn } from "../util/modal-reach.js";
 import { SOURCES } from "../data/sources.js";
 
 type Options = [{ extraModifyingMethods?: string[]; readOnlyDescriptors?: string[]; checkDomMethods?: boolean }];
-type MessageIds = "batchPlayOutsideModal" | "domOutsideModal" | "setterOutsideModal";
+type MessageIds = "batchPlayOutsideModal" | "batchPlayHelperOutsideModal" | "domOutsideModal" | "setterOutsideModal";
+type Node = TSESTree.Node;
 
 /** batchPlay `_obj` values that only read state. */
 const READ_ONLY = new Set(["get", "multiGet"]);
@@ -32,9 +34,10 @@ export default createRule<Options, MessageIds>({
     },
     schema: [{ type: "object", properties: { extraModifyingMethods: { type: "array", items: { type: "string" } }, readOnlyDescriptors: { type: "array", items: { type: "string" } }, checkDomMethods: { type: "boolean" } }, additionalProperties: false }],
     messages: {
-      batchPlayOutsideModal: "batchPlay `{{obj}}` modifies Photoshop state but is not inside core.executeAsModal(). With apiVersion 2 this throws; wrap it in executeAsModal.",
-      domOutsideModal: "`{{name}}()` modifies the Photoshop document but is not inside core.executeAsModal().",
-      setterOutsideModal: "Setting `{{name}}` on a Photoshop layer/document modifies state but is not inside core.executeAsModal().",
+      batchPlayOutsideModal: "batchPlay `{{obj}}` modifies Photoshop state but runs outside core.executeAsModal(). With apiVersion 2 this throws; wrap it in executeAsModal.",
+      batchPlayHelperOutsideModal: "`{{helper}}()` runs batchPlay `{{obj}}`, which modifies Photoshop state, outside core.executeAsModal(). With apiVersion 2 this throws; call it inside executeAsModal.",
+      domOutsideModal: "`{{name}}()` modifies the Photoshop document but runs outside core.executeAsModal().",
+      setterOutsideModal: "Setting `{{name}}` on a Photoshop layer/document modifies state but runs outside core.executeAsModal().",
     },
   },
   defaultOptions: [{ extraModifyingMethods: [], readOnlyDescriptors: [], checkDomMethods: true }],
@@ -42,137 +45,116 @@ export default createRule<Options, MessageIds>({
     const uxp = getUxp(context);
     if (uxp.host && uxp.host !== "PS") return {};
     if (photoshopApiVersion(uxp) === 1) return {}; // apiVersion 1 allows mutations outside a modal scope (deprecated)
+    if (/\.psjs$/i.test(context.filename)) return {}; // Photoshop scripts already run in a modal scope (forum 11898, Adobe scripting docs)
     const sourceCode = context.sourceCode;
     const tracker = new ModuleTracker(new Set(["photoshop"]));
     const readOnly = new Set([...READ_ONLY, ...(opts.readOnlyDescriptors ?? [])]);
     const modifying = new Set([...MODIFYING, ...(opts.extraModifyingMethods ?? [])]);
-    const calls: TSESTree.CallExpression[] = [];
-    const assigns: TSESTree.AssignmentExpression[] = [];
     let usesPhotoshop = false;
 
-    type Fn = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression;
-    const isFn = (n: TSESTree.Node): n is Fn => n.type === "FunctionDeclaration" || n.type === "FunctionExpression" || n.type === "ArrowFunctionExpression";
-    const fnName = (f: Fn): string | null => {
-      if (f.type === "FunctionDeclaration" && f.id) return f.id.name;
-      const p = f.parent;
-      if (p?.type === "VariableDeclarator" && p.id.type === "Identifier") return p.id.name;
-      if (p?.type === "Property" || p?.type === "MethodDefinition" || p?.type === "PropertyDefinition") return keyName(p);
+    /** Resolve an identifier to the initializer of a `const` (or never-reassigned let/var) in scope. */
+    const resolveConst = (id: TSESTree.Identifier): Node | null => {
+      let scope: TSESLint.Scope.Scope | null = sourceCode.getScope(id) as TSESLint.Scope.Scope;
+      while (scope) {
+        const v = scope.set.get(id.name);
+        if (v) {
+          const def = v.defs[0];
+          if (!def || def.type !== "Variable" || v.defs.length !== 1) return null;
+          const decl = def.node as TSESTree.VariableDeclarator;
+          if (decl.id.type !== "Identifier" || !decl.init) return null;
+          if (v.references.some((r) => r.isWrite() && r.identifier !== decl.id)) return null;
+          return unwrap(decl.init as Node);
+        }
+        scope = scope.upper;
+      }
       return null;
     };
-    const enclosingFns = (n: TSESTree.Node): Fn[] => { const out: Fn[] = []; for (let p = n.parent; p; p = p.parent) if (isFn(p)) out.push(p); return out; };
+    /** `_obj` names a batchPlay argument statically shows (literals, consts, spreads of consts). Unknown elements are ignored. */
+    const descriptorObjs = (arg: Node | undefined, depth = 0): string[] => {
+      if (!arg || depth > 3) return [];
+      let a = unwrap(arg);
+      if (a.type === "Identifier") a = resolveConst(a) ?? a;
+      if (a.type === "ObjectExpression") {
+        const p = a.properties.find((x) => x.type === "Property" && keyName(x) === "_obj") as TSESTree.Property | undefined;
+        const v = p ? staticString(p.value as Node) : null;
+        return v ? [v] : [];
+      }
+      if (a.type !== "ArrayExpression") return [];
+      const out: string[] = [];
+      for (const el of a.elements) {
+        if (!el) continue;
+        if (el.type === "SpreadElement") out.push(...descriptorObjs(el.argument as Node, depth + 1));
+        else out.push(...descriptorObjs(el as Node, depth + 1));
+      }
+      return out;
+    };
 
     return mergeVisitors(tracker.visitors(), {
-      CallExpression(node) { calls.push(node); },
-      AssignmentExpression(node) { if (node.left.type === "MemberExpression") assigns.push(node); },
       ImportDeclaration(node) { if (node.source.value === "photoshop") usesPhotoshop = true; },
       "Program:exit"() {
         tracker.finalize();
-        if (!usesPhotoshop) usesPhotoshop = calls.some((c) => c.callee.type === "Identifier" && c.callee.name === "require" && staticString(c.arguments[0] as TSESTree.Node) === "photoshop");
+        const g = buildModalGraph(sourceCode.ast as Node, sourceCode.visitorKeys as Record<string, readonly string[]>, tracker);
+        if (!usesPhotoshop) usesPhotoshop = g.calls.some((c) => c.callee.type === "Identifier" && c.callee.name === "require" && staticString(c.arguments[0] as Node) === "photoshop");
         if (!usesPhotoshop) return;
+        const isBatchPlay = (c: TSESTree.CallExpression) => { const r = tracker.resolve(c.callee); return r === "photoshop.action.batchPlay" || r === "photoshop.app.batchPlay"; };
 
-        // 1. modal roots: functions passed to executeAsModal / suspendHistory, inline or by name
-        const modalFns = new Set<TSESTree.Node>();
-        const modalNames = new Set<string>();
-        const fnsByName = new Map<string, Fn[]>();
-        const allFns: Fn[] = [];
-        const visit = (n: TSESTree.Node) => {
-          if (isFn(n)) { allFns.push(n); const nm = fnName(n); if (nm) fnsByName.set(nm, [...(fnsByName.get(nm) ?? []), n]); }
-          for (const k of sourceCode.visitorKeys[n.type] ?? []) {
-            const v = (n as unknown as Record<string, unknown>)[k];
-            if (Array.isArray(v)) v.forEach((c) => c && typeof c === "object" && "type" in c && visit(c as TSESTree.Node));
-            else if (v && typeof v === "object" && "type" in v) visit(v as TSESTree.Node);
-          }
-        };
-        visit(sourceCode.ast as TSESTree.Node);
+        // batchPlay helpers: `function play(cmds) { return batchPlay(cmds, {}) }`, `const run = (d) => action.batchPlay([d], {})`
+        const helpers = new Map<string, { index: number; wrapInArray: boolean }>();
+        for (const c of g.calls) {
+          if (!isBatchPlay(c) || g.ctx(c) === "modal") continue;
+          const f = g.enclosingFns(c)[0];
+          const nm = f ? fnName(f) : null;
+          if (!f || !nm) continue;
+          const params = f.params.map((p) => (p.type === "Identifier" ? p.name : p.type === "AssignmentPattern" && p.left.type === "Identifier" ? p.left.name : ""));
+          const a0 = c.arguments[0] ? unwrap(c.arguments[0] as Node) : null;
+          if (a0?.type === "Identifier" && params.includes(a0.name)) helpers.set(nm, { index: params.indexOf(a0.name), wrapInArray: false });
+          else if (a0?.type === "ArrayExpression" && a0.elements.length === 1 && a0.elements[0]?.type === "Identifier" && params.includes(a0.elements[0].name)) helpers.set(nm, { index: params.indexOf(a0.elements[0].name), wrapInArray: true });
+        }
 
-        for (const c of calls) {
-          const r = tracker.resolve(c.callee);
-          const prop = c.callee.type === "MemberExpression" ? propertyName(c.callee) : c.callee.type === "Identifier" ? c.callee.name : null;
-          if (r === "photoshop.core.executeAsModal" || prop === "executeAsModal" || prop === "suspendHistory") {
-            const target = c.arguments[0] ? unwrap(c.arguments[0] as TSESTree.Node) : null;
-            if (target && isFn(target)) modalFns.add(target);
-            else if (target?.type === "Identifier") modalNames.add(target.name);
-            else if (target?.type === "MemberExpression") { const pn = propertyName(target); if (pn) modalNames.add(pn); }
-          }
-        }
-        // 2. propagate through same-file calls by name (fixpoint)
-        const called = new Map<Fn, Set<string>>();
-        for (const c of calls) {
-          const name = c.callee.type === "Identifier" ? c.callee.name : c.callee.type === "MemberExpression" ? propertyName(c.callee) : null;
-          if (!name) continue;
-          const f = enclosingFns(c)[0];
-          if (f) { const s = called.get(f) ?? new Set(); s.add(name); called.set(f, s); }
-        }
-        for (const n of modalNames) for (const f of fnsByName.get(n) ?? []) modalFns.add(f);
-        let changed = true;
-        while (changed) {
-          changed = false;
-          for (const f of [...modalFns]) {
-            for (const name of called.get(f as Fn) ?? []) for (const g of fnsByName.get(name) ?? []) if (!modalFns.has(g)) { modalFns.add(g); changed = true; }
-          }
-        }
-        // functions referenced (called or passed) anywhere in the file
-        const referenced = new Set<string>();
-        for (const c of calls) {
-          if (c.callee.type === "Identifier") referenced.add(c.callee.name);
-          if (c.callee.type === "MemberExpression") { const pn = propertyName(c.callee); if (pn) referenced.add(pn); }
-          for (const a of c.arguments) if (a.type === "Identifier") referenced.add(a.name);
-        }
-        const inModal = (n: TSESTree.Node) => enclosingFns(n).some((f) => modalFns.has(f));
-        // Unknown reachability: the enclosing named function is never referenced here (exported helper, called elsewhere).
-        const unknownReach = (n: TSESTree.Node) => {
-          const fns = enclosingFns(n);
-          if (fns.length === 0) return false;
-          return fns.every((f) => { const nm = fnName(f); return nm !== null && !referenced.has(nm) && !isInlineHandler(f); });
-        };
-
-        for (const c of calls) {
-          if (inModal(c) || unknownReach(c)) continue;
-          const r = tracker.resolve(c.callee);
+        for (const c of g.calls) {
+          if (g.ctx(c) !== "root") continue;
           const prop = c.callee.type === "MemberExpression" ? propertyName(c.callee) : null;
-          if (r === "photoshop.action.batchPlay" || r === "photoshop.app.batchPlay") {
-            const obj = descriptorObj(c.arguments[0] as TSESTree.Node | undefined);
-            if (obj && !obj.every((o) => readOnly.has(o))) context.report({ node: c, messageId: "batchPlayOutsideModal", data: { obj: obj.filter((o) => !readOnly.has(o)).join(", ") } });
+          if (isBatchPlay(c)) {
+            const objs = descriptorObjs(c.arguments[0] as Node | undefined).filter((o) => !readOnly.has(o));
+            if (objs.length) context.report({ node: c, messageId: "batchPlayOutsideModal", data: { obj: [...new Set(objs)].join(", ") } });
             continue;
           }
-          if (opts.checkDomMethods !== false && prop && modifying.has(prop) && (r?.startsWith("photoshop.") || looksLikePsReceiver(sourceCode, c.callee as TSESTree.MemberExpression))) {
-            context.report({ node: c.callee.type === "MemberExpression" ? c.callee.property : c, messageId: "domOutsideModal", data: { name: prop } });
+          const helper = helpers.get(calleeName(c) ?? "");
+          if (helper && !g.isModalEntry(c)) {
+            const objs = descriptorObjs(c.arguments[helper.index] as Node | undefined).filter((o) => !readOnly.has(o));
+            if (objs.length) context.report({ node: c, messageId: "batchPlayHelperOutsideModal", data: { helper: calleeName(c)!, obj: [...new Set(objs)].join(", ") } });
+            continue;
+          }
+          if (opts.checkDomMethods !== false && prop && modifying.has(prop) && (tracker.resolve(c.callee)?.startsWith("photoshop.") || looksLikePsReceiver(sourceCode, c.callee as TSESTree.MemberExpression))) {
+            context.report({ node: (c.callee as TSESTree.MemberExpression).property, messageId: "domOutsideModal", data: { name: prop } });
           }
         }
         if (opts.checkDomMethods === false) return;
-        for (const a of assigns) {
-          const left = a.left as TSESTree.MemberExpression;
-          const prop = propertyName(left);
-          if (!prop || !SETTERS.has(prop) || inModal(a) || unknownReach(a)) continue;
-          const r = tracker.resolve(left.object);
-          if (r?.startsWith("photoshop.") || looksLikePsReceiver(sourceCode, left)) context.report({ node: left.property, messageId: "setterOutsideModal", data: { name: prop } });
-        }
+        const visit = (n: Node) => {
+          if (n.type === "AssignmentExpression" && n.left.type === "MemberExpression") {
+            const left = n.left;
+            const prop = propertyName(left);
+            if (prop && SETTERS.has(prop) && g.ctx(n) === "root") {
+              const r = tracker.resolve(left.object);
+              if (r?.startsWith("photoshop.") || looksLikePsReceiver(sourceCode, left)) context.report({ node: left.property, messageId: "setterOutsideModal", data: { name: prop } });
+            }
+          }
+          for (const k of sourceCode.visitorKeys[n.type] ?? []) {
+            const v = (n as unknown as Record<string, unknown>)[k];
+            if (Array.isArray(v)) v.forEach((x) => x && typeof x === "object" && "type" in x && visit(x as Node));
+            else if (v && typeof v === "object" && "type" in v) visit(v as Node);
+          }
+        };
+        visit(sourceCode.ast as Node);
       },
     });
   },
 });
 
-function isInlineHandler(f: TSESTree.Node): boolean {
-  const p = f.parent;
-  return p?.type === "CallExpression" || p?.type === "JSXExpressionContainer" || p?.type === "AssignmentExpression";
-}
-
-/** `_obj` names of a literal descriptor array, or null when not statically known. */
-function descriptorObj(arg: TSESTree.Node | undefined): string[] | null {
-  if (!arg || arg.type !== "ArrayExpression") return null;
-  const out: string[] = [];
-  for (const el of arg.elements) {
-    if (!el || el.type !== "ObjectExpression") return null;
-    const p = el.properties.find((x) => x.type === "Property" && keyName(x) === "_obj") as TSESTree.Property | undefined;
-    const v = p ? staticString(p.value as TSESTree.Node) : null;
-    if (!v) return null;
-    out.push(v);
-  }
-  return out.length ? out : null;
-}
-
-/** Receiver text mentions a Photoshop DOM root (app, activeDocument, layers, doc, layer, selection). */
+/** Receiver text names a Photoshop DOM object (app, activeDocument, layers, doc, layer, selection). */
 function looksLikePsReceiver(sourceCode: Readonly<TSESLint.SourceCode>, callee: TSESTree.MemberExpression): boolean {
   const t = sourceCode.getText(callee.object);
   return /(^|\.)(app|activeDocument|documents|activeLayers|layers|selection)\b|^(doc|document|layer|psDoc|activeDoc)\w*$/i.test(t) && !/^document\.(body|head|getElementById|querySelector)/.test(t) && t !== "document";
 }
+
+export type { Fn };

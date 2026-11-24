@@ -31,18 +31,23 @@ export default createRule<Options, MessageIds>({
       selectValue: "`<select value=...>` does not select the option in UXP; set `selected` on the <option> or call setAttribute(\"value\", ...).",
       inlineHandler: "Inline `{{name}}` handlers are not reliable in UXP; attach listeners with addEventListener.",
       defaultValue: "UXP input elements do not accept `defaultValue`; set `value` instead.",
-      spEvent: "React does not forward `{{name}}` to the `<{{el}}>` web component; attach the listener with a ref and addEventListener (React 19+ excepted).",
+      spEvent: "React (before 19) does not forward `{{name}}` to the `<{{el}}>` web component, so the handler never runs. Attach a `change` listener with a ref and addEventListener, or upgrade to React 19.",
     },
   },
   defaultOptions: [{ elements: true, attributes: true, aria: false, inlineHandlers: true, ignore: [] }],
   create(context, [opts]) {
     const ignore = new Set(opts.ignore ?? []);
+    const reactVersion = ((context.settings as { uxp?: { reactVersion?: number } } | undefined)?.uxp?.reactVersion) ?? 0;
+    const reactForwards = reactVersion >= 19; // React 19 attaches custom-element event listeners itself
+    const styled = new Set((((context.settings as { uxp?: { styledElements?: string[] } } | undefined)?.uxp?.styledElements) ?? []).map((e) => e.toLowerCase()));
     const at = (loc: TSESTree.SourceLocation, messageId: MessageIds, data: Record<string, string> = {}) => {
       if (!ignore.has(messageId) && !ignore.has(data.name ?? "\u0000")) context.report({ loc, messageId, data });
     };
     const check = (el: ElementView) => {
       const attr = (n: string) => el.attrs.find((a) => a.name.toLowerCase() === n);
-      if (opts.elements !== false && UNSUPPORTED_ELEMENTS[el.name]) at(el.loc, "element", { message: UNSUPPORTED_ELEMENTS[el.name]!.message, name: el.name });
+      // Adobe's workaround for these elements is to style them (they render as <div>); an element with its own class/style is styled.
+      const selfStyled = el.name !== "title" && el.attrs.some((a) => /^(class|classname|style)$/i.test(a.name));
+      if (opts.elements !== false && UNSUPPORTED_ELEMENTS[el.name] && !styled.has(el.name) && !selfStyled) at(el.loc, "element", { message: UNSUPPORTED_ELEMENTS[el.name]!.message, name: el.name });
       if (el.name === "input") {
         const t = attr("type")?.value?.toLowerCase();
         if (t && INPUT_TYPES_UNSUPPORTED[t]) at(attr("type")!.loc, "inputType", { message: INPUT_TYPES_UNSUPPORTED[t]!.message });
@@ -71,7 +76,7 @@ export default createRule<Options, MessageIds>({
           }
         }
         if (!el.jsx && opts.inlineHandlers !== false && /^on[a-z]+$/.test(n)) at(a.loc, "inlineHandler", { name: a.name });
-        if (el.jsx && SPECTRUM_PREFIX.test(el.name) && /^on(Change|Input)$/.test(a.name)) at(a.loc, "spEvent", { name: a.name, el: el.name });
+        if (el.jsx && reactForwards !== true && SPECTRUM_PREFIX.test(el.name) && a.name === "onChange") at(a.loc, "spEvent", { name: a.name, el: el.name });
       }
     };
     return {

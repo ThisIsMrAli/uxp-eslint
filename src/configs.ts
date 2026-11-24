@@ -3,7 +3,7 @@ import type { UxpManifest, UxpSettings } from "./util/settings.js";
 export const PREFIX = "uxp-lint";
 export const JS_FILES = ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,psjs,idjs}"];
 export const CSS_FILES = ["**/*.css"];
-export const HTML_FILES = ["**/*.html"];
+export const HTML_FILES = ["**/*.{html,htm}"];
 export const MANIFEST_FILES = ["**/manifest.json"];
 
 type Sev = "error" | "warn" | "off";
@@ -61,4 +61,6 @@ export interface BuildConfigOptions {
   tsPlugin?: unknown;
   /** Glob prefix, e.g. "plugin/" when the UXP plugin lives in a subfolder. */
   base?: string;
+  /** Globs excluded from every uxp-lint config object (not global ignores, so other configs are unaffected). */
+  ignores?: string[];
 }

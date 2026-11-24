@@ -59,6 +59,8 @@ jsTester().run("entrypoints-match-manifest", rule("entrypoints-match-manifest"),
   invalid: [
     { code: "const { entrypoints } = require('uxp'); entrypoints.setup({ panels: { mainPanle: {} }, commands: { doIt() {} } })", settings: settings(), errors: [{ messageId: "missingHandler", data: { id: "mainPanel", kind: "panel" } }, { messageId: "notInManifest", data: { id: "mainPanle", kind: "panel" } }] },
     { code: "import { entrypoints } from 'uxp'; entrypoints.setup({ panels: { mainPanel: {} }, commands: { mainPanel: f, doIt: f } })", settings: settings(), errors: [{ messageId: "wrongKind" }] },
+    // "entryPoints" spelling (jardicc/alchemist) must be read too
+    { code: "const { entrypoints } = require('uxp'); entrypoints.setup({ panels: { inspectr: {} } })", settings: { uxp: { manifest: { ...manifest(), entrypoints: undefined, entryPoints: [{ type: "panel", id: "inspector" }] } } }, errors: [{ messageId: "missingHandler" }, { messageId: "notInManifest" }] },
   ],
 });
 
@@ -69,13 +71,36 @@ jsonTester().run("valid-manifest", rule("valid-manifest"), {
     { code: M({ requiredPermissions: { launchProcess: { extensions: [""] } } }), filename: "manifest.json" },
     { code: '{"entrypoints":[{"main":"x"}]}', filename: "other.json" },
     { code: M({ host: [{ app: "PS", minVersion: "24.0.0" }, { app: "ID", minVersion: "18.5.0" }] }), filename: "plugin/manifest.json" },
+    { code: M({ version: "1.2.3-beta.1", requiredPermissions: { clipboard: "readAndWrite", localFileSystem: "fullAccess", network: { domains: "all" }, webview: { allow: "yes", domains: ["https://*.adobe.com"] }, enableUserInfo: true } }), filename: "manifest.json" },
+    { code: M({ manifestVersion: 4, version: "1.0.0", entrypoints: [{ type: "command", id: "c", shortcut: { mac: "Cmd+K" } }, { type: "panel", id: "p", minimumSize: { width: 200, height: 100 }, maximumSize: { width: 2000, height: 2000 } }] }), filename: "manifest.json" },
+    // Adobe invisible-plugin-sample has no entrypoints at all; XD v3 manifests use uiEntrypoints
+    { code: JSON.stringify({ ...manifest(), entrypoints: undefined }), filename: "manifest.json" },
+    { code: '{"name":"Webpack Plugin","id":"webpack.plugin","version":"0.0.1","main":"index.html","uiEntrypoints":[{"type":"homescreen","panelId":"mainPanel"}]}', filename: "manifest.json" },
+    { code: '{"manifestVersion":3,"id":"a","name":"abc","version":"1.0.0","host":{"app":"XD","minVersion":"21.0"},"entrypoints":[]}', filename: "manifest.json" },
   ],
   invalid: [
     { code: M({ entrypoints: [{ type: "panel", id: "panel", main: "index.html" }] }), filename: "manifest.json", errors: [{ messageId: "entrypointMain" }] },
-    { code: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[" "]}}}', output: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[""]}}}', filename: "manifest.json", errors: [{ messageId: "blankExtension" }] },
-    { code: '{"manifestVersion":4,"host":{"app":"PS","minVersion":"22.0.0"},"requiredPermissions":{"network":{"domains":"all"}}}', filename: "manifest.json", errors: [{ messageId: "permissionsNeedV5" }] },
-    { code: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"20.0.0"}}', filename: "manifest.json", options: [{ reportUnknownHostVersion: true }], errors: [{ messageId: "unknownHostVersion" }] },
-    { code: '{"manifestVersion":5,"host":{"app":"AI"}}', filename: "manifest.json", errors: [{ messageId: "missingMinVersion" }, { messageId: "unknownHost" }] },
+    { code: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[" "]}}}', output: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[""]}}}', filename: "manifest.json", errors: [{ messageId: "blankExtension" }] },
+    { code: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":4,"host":{"app":"PS","minVersion":"22.0.0"},"requiredPermissions":{"network":{"domains":"all"}}}', filename: "manifest.json", errors: [{ messageId: "permissionsNeedV5" }] },
+    { code: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":5,"host":{"app":"PS","minVersion":"20.0.0"}}', filename: "manifest.json", options: [{ reportUnknownHostVersion: true }], errors: [{ messageId: "unknownHostVersion" }] },
+    { code: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":5,"host":{"app":"AI"}}', filename: "manifest.json", errors: [{ messageId: "missingMinVersion" }, { messageId: "unknownHost" }] },
+    // Completeness checks, each from Adobe's manifest v4/v5 reference or the UXP changelog
+    { code: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"}}', filename: "manifest.json", errors: [{ messageId: "missingRequired", data: { key: "id" } }, { messageId: "missingRequired", data: { key: "name" } }, { messageId: "missingRequired", data: { key: "version" } }] },
+    // Real shape: Alchemist (jardicc/alchemist uxp/manifest.json) spells it "entryPoints"
+    { code: JSON.stringify({ ...manifest(), entrypoints: undefined, entryPoints: [{ type: "panel", id: "inspector" }, { type: "panel", id: "inspector" }] }), filename: "manifest.json", errors: [{ messageId: "duplicateEntrypoint" }] },
+    { code: M({ manifestVersion: 4, version: "1.0" }), filename: "manifest.json", errors: [{ messageId: "invalidVersion" }] },
+    { code: M({ version: "v1" }), filename: "manifest.json", errors: [{ messageId: "invalidVersion" }] },
+    { code: M({ version: 1 }), filename: "manifest.json", errors: [{ messageId: "wrongType" }] },
+    { code: M({ name: "AB" }), filename: "manifest.json", errors: [{ messageId: "nameLength" }] },
+    { code: M({ entrypoints: [{ type: "dialog", id: "d" }] }), filename: "manifest.json", errors: [{ messageId: "entrypointType" }] },
+    { code: M({ entrypoints: [{ type: "panel", id: "p" }, { type: "command", id: "p" }] }), filename: "manifest.json", errors: [{ messageId: "duplicateEntrypoint" }] },
+    { code: M({ entrypoints: [{ type: "command", id: "c", minimumSize: { width: 10, height: 10 } }] }), filename: "manifest.json", errors: [{ messageId: "keyOnlyFor" }] },
+    { code: M({ entrypoints: [{ type: "panel", id: "p", shortcut: { mac: "Cmd+K" } }] }), filename: "manifest.json", errors: [{ messageId: "keyOnlyFor" }] },
+    { code: M({ entrypoints: [{ type: "panel", id: "p", minimumSize: { width: 400, height: 100 }, maximumSize: { width: 300, height: 900 } }] }), filename: "manifest.json", errors: [{ messageId: "sizeOrder" }] },
+    { code: M({ requiredPermissions: { clipboard: "write", localFileSystem: "full" } }), filename: "manifest.json", errors: [{ messageId: "invalidPermissionValue" }, { messageId: "invalidPermissionValue" }] },
+    { code: M({ requiredPermissions: { webview: { allow: true, domains: ["https://*.com"] } } }), filename: "manifest.json", errors: [{ messageId: "invalidPermissionValue" }, { messageId: "wildcardTopLevel" }] },
+    { code: M({ requiredPermissions: { network: { domains: ["https://*", "*.org", "https://*.adobe.com"] }, ipc: { enablePluginCommunication: "yes" } } }), filename: "manifest.json", errors: [{ messageId: "wildcardTopLevel" }, { messageId: "wildcardTopLevel" }, { messageId: "wrongType" }] },
+    { code: M({ manifestVersion: 3 }), filename: "manifest.json", errors: [{ messageId: "manifestVersionTooOld" }] },
   ],
 });
 

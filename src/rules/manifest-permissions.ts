@@ -1,7 +1,7 @@
 import type { TSESTree, TSESLint } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
 import { getUxp } from "../util/settings.js";
-import { ModuleTracker, staticPrefix, staticString, memberPath, stripGlobal, isGlobalReference, getHtmlAttr, type HtmlTag, mergeVisitors } from "../util/ast.js";
+import { ModuleTracker, staticPrefix, staticString, memberPath, stripGlobal, isGlobalReference, getHtmlAttr, type HtmlTag, mergeVisitors, isOptionalUse } from "../util/ast.js";
 import { urlParts, domainsAllow } from "../util/domains.js";
 import { SOURCES } from "../data/sources.js";
 
@@ -165,7 +165,7 @@ export default createRule<[], MessageIds>({
 
       // alert / confirm / prompt
       const alertName = callee.type === "Identifier" && isGlobalReference(sourceCode, callee) ? callee.name : globalPath && /^(window|globalThis)\./.test(raw ?? "") ? globalPath : null;
-      if (alertName && ["alert", "confirm", "prompt"].includes(alertName) && m.featureFlags?.enableAlerts !== true) report(node, "missingEnableAlerts", { api: alertName });
+      if (alertName && ["alert", "confirm", "prompt"].includes(alertName) && m.featureFlags?.enableAlerts !== true && !node.optional && !isOptionalUse(callee)) report(node, "missingEnableAlerts", { api: alertName });
     };
 
     const evaluateMember = (node: TSESTree.MemberExpression) => {

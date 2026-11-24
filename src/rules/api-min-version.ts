@@ -1,10 +1,11 @@
 import type { TSESTree } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
 import { getUxp } from "../util/settings.js";
-import { ModuleTracker, memberPath, stripGlobal, isGlobalReference, propertyName, mergeVisitors } from "../util/ast.js";
-import { isOlder } from "../util/version.js";
+import { ModuleTracker, memberPath, stripGlobal, isGlobalReference, propertyName, mergeVisitors, isOptionalUse } from "../util/ast.js";
+import { isOlder, compareVersions } from "../util/version.js";
 import uxpSince from "../data/generated/uxp-since.js";
 import psMin from "../data/generated/photoshop-min-versions.js";
+import { CURATED_SINCE } from "../data/curated-since.js";
 
 type Options = [{ typeAware?: boolean; checkDomMembers?: boolean }];
 type MessageIds = "hostTooOld" | "uxpTooOld";
@@ -16,6 +17,14 @@ const PS_ROOTS: Record<string, string> = { core: "photoshopCore", action: "photo
 /** DOM element members documented with a Since version and distinctive enough to match by name. */
 const DOM_MEMBERS = new Set(["replaceChildren", "setPointerCapture", "releasePointerCapture", "hasPointerCapture"]);
 const DOCS_BASE = "https://github.com/AdobeDocs/uxp/blob/main/";
+/**
+ * Photoshop's DOM v2 docs (and so the @types tags) start at 22.5/23.0: APIs that already existed in the 22.0 DOM
+ * carry 22.x/23.0 tags too (e.g. `app.activeDocument` is tagged 23.0). Tags at or below this floor are not reported,
+ * except APIs the Photoshop API changelog says were introduced then.
+ * https://developer.adobe.com/photoshop/uxp/2022/ps-reference/changelog/
+ */
+const PS_DOC_FLOOR = "23.0";
+const PS_CONFIRMED_EARLY = new Set(["executeAsModal", "suspendHistory"]); // changelog: Prerelease Build 60 (22.5), Beta Build 64 (23.0)
 
 export default createRule<Options, MessageIds>({
   name: "api-min-version",
@@ -45,6 +54,7 @@ export default createRule<Options, MessageIds>({
     const checker = opts.typeAware !== false && services.program && services.esTreeNodeToTSNodeMap ? services.program.getTypeChecker() : null;
 
     const guarded = (node: TSESTree.Node, text: string): boolean => {
+      if (isOptionalUse(node)) return true;
       for (let p: TSESTree.Node | undefined = node.parent; p; p = p.parent) {
         const test = p.type === "IfStatement" || p.type === "ConditionalExpression" ? p.test : p.type === "LogicalExpression" ? p.left : null;
         if (test && test !== node && sourceCode.getText(test).includes(text)) return true;
@@ -54,14 +64,16 @@ export default createRule<Options, MessageIds>({
     };
 
     const reportHost = (node: TSESTree.Node, api: string, required: string, source: string) => {
-      if (!uxp.hostMinVersion || !isOlder(uxp.hostMinVersion, required) || guarded(node, api.split(".").pop()!)) return;
+      const last = api.split(".").pop()!;
+      if (!uxp.hostMinVersion || !isOlder(uxp.hostMinVersion, required) || guarded(node, last)) return;
+      if (compareVersions(required, PS_DOC_FLOOR) <= 0 && !PS_CONFIRMED_EARLY.has(last)) return;
       done.add(node);
       context.report({ node, messageId: "hostTooOld", data: { api, required, host: uxp.host ?? "host", min: uxp.hostMinVersion, source } });
     };
     const reportUxp = (node: TSESTree.Node, api: string, required: string, doc: string) => {
-      if (!uxp.uxpVersion || !isOlder(uxp.uxpVersion, required) || guarded(node, api.split(".").pop()!)) return;
+      if (!uxp.uxpVersion || !isOlder(uxp.uxpVersion, required) || guarded(node, api.split(".").pop()!) || done.has(node)) return;
       done.add(node);
-      context.report({ node, messageId: "uxpTooOld", data: { api, required, uxp: uxp.uxpVersion, min: uxp.hostMinVersion ?? "(settings.uxp.uxpVersion)", source: DOCS_BASE + doc.replace(/ /g, "%20") } });
+      context.report({ node, messageId: "uxpTooOld", data: { api, required, uxp: uxp.uxpVersion, min: uxp.hostMinVersion ?? "(settings.uxp.uxpVersion)", source: /^https?:/.test(doc) ? doc : DOCS_BASE + doc.replace(/ /g, "%20") } });
     };
 
     const checkPhotoshopPath = (node: TSESTree.Node, resolved: string) => {
@@ -118,10 +130,14 @@ export default createRule<Options, MessageIds>({
           if (resolved) {
             if (resolved.startsWith("photoshop.")) checkPhotoshopPath(n, resolved);
             else if (GLOBALS[resolved]) reportUxp(n, resolved, GLOBALS[resolved]!.since, GLOBALS[resolved]!.doc);
+            else if (CURATED_SINCE[resolved]) reportUxp(n, resolved.replace(/^uxp\.storage\./, ""), CURATED_SINCE[resolved]!.since, CURATED_SINCE[resolved]!.source);
           } else {
             const raw = memberPath(n);
             const path = raw ? stripGlobal(raw) : null;
             if (path && raw !== path && GLOBALS[path]) reportUxp(n, path, GLOBALS[path]!.since, GLOBALS[path]!.doc);
+            let root: TSESTree.Node = n;
+            while (root.type === "MemberExpression") root = root.object;
+            if (path && CURATED_SINCE[path] && root.type === "Identifier" && isGlobalReference(sourceCode, root)) reportUxp(n, path, CURATED_SINCE[path]!.since, CURATED_SINCE[path]!.source);
             const m = path?.match(/^navigator\.clipboard\.(\w+)$/);
             if (m && MEMBERS[`clipboard.${m[1]}`]) reportUxp(n, path!, MEMBERS[`clipboard.${m[1]}`]!.since, MEMBERS[`clipboard.${m[1]}`]!.doc);
             const prop = propertyName(n);

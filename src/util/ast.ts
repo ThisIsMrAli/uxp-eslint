@@ -227,3 +227,30 @@ export function mergeVisitors(...listeners: TSESLint.RuleListener[]): TSESLint.R
   }
   return out as TSESLint.RuleListener;
 }
+
+/** `x?.y` / `x?.()` / `x.y?.()`: the node is used through optional chaining, i.e. feature-detected. */
+export function isOptionalUse(node: TSESTree.Node): boolean {
+  let n: TSESTree.Node = node;
+  for (let i = 0; i < 3 && n.parent; i++) {
+    const p: TSESTree.Node = n.parent;
+    if ((p.type === "MemberExpression" && p.object === n && p.optional) || (p.type === "CallExpression" && p.callee === n && p.optional)) return true;
+    if (p.type === "MemberExpression" && p.property === n) { n = p; continue; }
+    break;
+  }
+  return false;
+}
+
+/**
+ * Feature detection around `node`: optional chaining, an enclosing if/ternary/&&/|| test whose text mentions `name`,
+ * a `typeof` check, or a try block.
+ */
+export function isFeatureDetected(sourceCode: { getText(n: TSESTree.Node): string }, node: TSESTree.Node, name: string): boolean {
+  if (isOptionalUse(node)) return true;
+  if (node.parent?.type === "UnaryExpression" && node.parent.operator === "typeof") return true;
+  for (let p: TSESTree.Node | undefined = node.parent; p; p = p.parent) {
+    const test = p.type === "IfStatement" || p.type === "ConditionalExpression" ? p.test : p.type === "LogicalExpression" ? p.left : null;
+    if (test && !(node.range[0] >= test.range[0] && node.range[1] <= test.range[1]) && sourceCode.getText(test).includes(name)) return true;
+    if (p.type === "TryStatement" && p.handler && node.range[0] >= p.block.range[0] && node.range[1] <= p.block.range[1]) return true;
+  }
+  return false;
+}

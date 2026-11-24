@@ -1,6 +1,6 @@
 import { createRule } from "../util/create-rule.js";
 import { getUxp } from "../util/settings.js";
-import { checkCss, checkCssValue, isKnownWebFunction, type CssVerdict } from "../util/css-data.js";
+import { checkCss, checkCssValue, isKnownWebFunction, matchesUxpDefault, type CssVerdict } from "../util/css-data.js";
 import { SOURCES } from "../data/sources.js";
 
 type Options = [{ ignore?: string[]; ignoreVendorPrefixed?: boolean; checkValues?: boolean; ignoreBuildTimeAtRules?: boolean }];
@@ -34,7 +34,7 @@ export default createRule<Options, MessageIds>({
     const target = uxpVersion ? ` ${uxpVersion}` : "";
     const report = (node: Loc, kind: string, name: string, v: CssVerdict) => {
       if (v.ok || ignore.has(name.toLowerCase())) return;
-      if (opts.ignoreVendorPrefixed !== false && /^-[a-z]+-/.test(name)) return;
+      if (opts.ignoreVendorPrefixed !== false && /^[:@]*-[a-z]+-/.test(name)) return;
       if (v.reason === "unsupported") context.report({ loc: node.loc, messageId: "unsupported", data: { kind, name, target } });
       else context.report({ loc: node.loc, messageId: "newer", data: { kind, name, since: v.since, uxp: uxpVersion ?? "?" } });
     };
@@ -45,6 +45,7 @@ export default createRule<Options, MessageIds>({
         const prop = node.property ?? "";
         if (prop.startsWith("--")) { skipValues++; return; }
         const v = checkCss("properties", prop, uxpVersion);
+        if (!v.ok && matchesUxpDefault(prop, context.sourceCode.getText(node.value as never))) { skipValues++; return; }
         report(node, "Property", prop, v);
         if (!v.ok) { skipValues++; return; }
         if (opts.checkValues === false) return;
