@@ -1,0 +1,46 @@
+[
+ {
+  "filePath": "sample-panels/metadata-handler/styles.css",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `gap` is not supported by UXP 8.1.0.",
+    "line": 73,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 73,
+    "endColumn": 12
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "sample-panels/premiere-api/public/index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<em> is not supported; use a styled element (font-style: italic).",
+    "line": 217,
+    "column": 13,
+    "messageId": "element",
+    "endLine": 217,
+    "endColumn": 16
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ }
+]

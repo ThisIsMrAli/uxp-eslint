@@ -37,6 +37,7 @@ export default createRule<[], MessageIds>({
       if (p?.type === "ReturnStatement" || (p?.type === "ArrowFunctionExpression" && p.body === n)) return true;
       if (p?.type === "AwaitExpression" || p?.type === "VariableDeclarator" || p?.type === "AssignmentExpression" || p?.type === "ArrayExpression" || p?.type === "CallExpression") {
         if (p.type !== "AwaitExpression") return true; // stored/passed on: caller's responsibility
+        if (p.parent?.type === "ReturnStatement" || (p.parent?.type === "ArrowFunctionExpression" && p.parent.body === p)) return true; // return await: caller handles
         for (let a: TSESTree.Node | undefined = p.parent; a; a = a.parent) {
           if (a.type === "TryStatement" && a.handler && node.range[0] >= a.block.range[0] && node.range[1] <= a.block.range[1]) return true;
           if (a.type === "FunctionDeclaration" || a.type === "FunctionExpression" || a.type === "ArrowFunctionExpression") {

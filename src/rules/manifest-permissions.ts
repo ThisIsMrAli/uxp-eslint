@@ -1,4 +1,4 @@
-import type { TSESTree } from "@typescript-eslint/utils";
+import type { TSESTree, TSESLint } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
 import { getUxp } from "../util/settings.js";
 import { ModuleTracker, staticPrefix, staticString, memberPath, stripGlobal, isGlobalReference, getHtmlAttr, type HtmlTag, mergeVisitors } from "../util/ast.js";
@@ -197,7 +197,7 @@ export default createRule<[], MessageIds>({
           if (node.name.toLowerCase() !== "webview") return;
           checkWebviewSrc(node, getHtmlAttr(node, "src")?.value?.value ?? null);
         },
-      } as Record<string, unknown>),
+      } as unknown as TSESLint.RuleListener),
       "Program:exit"() {
         tracker.finalize();
         for (const c of calls) evaluateCall(c);

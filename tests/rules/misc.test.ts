@@ -74,7 +74,7 @@ jsonTester().run("valid-manifest", rule("valid-manifest"), {
     { code: M({ entrypoints: [{ type: "panel", id: "panel", main: "index.html" }] }), filename: "manifest.json", errors: [{ messageId: "entrypointMain" }] },
     { code: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[" "]}}}', output: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[""]}}}', filename: "manifest.json", errors: [{ messageId: "blankExtension" }] },
     { code: '{"manifestVersion":4,"host":{"app":"PS","minVersion":"22.0.0"},"requiredPermissions":{"network":{"domains":"all"}}}', filename: "manifest.json", errors: [{ messageId: "permissionsNeedV5" }] },
-    { code: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"20.0.0"}}', filename: "manifest.json", errors: [{ messageId: "unknownHostVersion" }] },
+    { code: '{"manifestVersion":5,"host":{"app":"PS","minVersion":"20.0.0"}}', filename: "manifest.json", options: [{ reportUnknownHostVersion: true }], errors: [{ messageId: "unknownHostVersion" }] },
     { code: '{"manifestVersion":5,"host":{"app":"AI"}}', filename: "manifest.json", errors: [{ messageId: "missingMinVersion" }, { messageId: "unknownHost" }] },
   ],
 });

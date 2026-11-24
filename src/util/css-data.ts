@@ -1,7 +1,7 @@
 import css from "../data/generated/css.js";
 import { isOlder } from "./version.js";
 
-type Item = { since: string | null; values?: Record<string, string | null> };
+type Item = { since: string | null; values?: Record<string, string | null>; restrictions?: string[] };
 type Category = "properties" | "atDirectives" | "pseudoClasses" | "pseudoElements" | "units" | "functionNames" | "mediaFeatures";
 const data = css as unknown as Record<Category, Record<string, Item>> & { knownFunctionNames: string[] };
 const knownFunctions = new Set(data.knownFunctionNames.map((f) => f.toLowerCase()));
@@ -18,7 +18,9 @@ export function checkCss(category: Category, name: string, uxpVersion: string | 
 
 export function checkCssValue(property: string, value: string, uxpVersion: string | null): CssVerdict {
   const item = data.properties[property.toLowerCase()];
+  // Only judge pure keyword properties; colors, lengths, urls etc. are not enumerable.
   if (!item?.values || CSS_WIDE.has(value.toLowerCase())) return { ok: true };
+  if (!item.restrictions || item.restrictions.some((r) => r !== "enum")) return { ok: true };
   const since = item.values[value.toLowerCase()];
   if (since === undefined) return { ok: false, reason: "unsupported" };
   if (uxpVersion && since && isOlder(uxpVersion, since)) return { ok: false, reason: "newer", since };

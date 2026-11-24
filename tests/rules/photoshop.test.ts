@@ -13,6 +13,8 @@ jsTester().run("photoshop-modal-scope", R, {
     "const list = []; list.duplicate = 1; button.delete(); doc.flatten();",
     "const { app } = require('photoshop'); app.activeDocument.suspendHistory(async (ctx) => { ctx.document.activeLayers[0].name = 'a'; }, 'rename');",
     { code: "const { action } = require('photoshop'); await action.batchPlay([{ _obj: 'set' }], {});", settings: settings(manifest({ host: { app: "ID", minVersion: "18.5.0" } })) },
+    { code: "const { action } = require('photoshop'); await action.batchPlay([{ _obj: 'set' }], {});", settings: settings(manifest({ host: { app: "PS", minVersion: "22.5.0" } })) },
+    { code: "const { action } = require('photoshop'); await action.batchPlay([{ _obj: 'set' }], {});", settings: settings(manifest({ host: { app: "PS", minVersion: "24.0.0", data: { apiVersion: 1 } } })) },
     { code: "const { action } = require('photoshop'); await action.batchPlay([{ _obj: 'select' }], {});", options: [{ readOnlyDescriptors: ["select"] }] },
   ],
   invalid: [
@@ -32,6 +34,7 @@ jsTester().run("photoshop-handle-modal-errors", rule("photoshop-handle-modal-err
     "const { core } = require('photoshop'); function run() { return core.executeAsModal(f, {commandName:'x'}); }",
     "const { core } = require('photoshop'); const run = () => core.executeAsModal(f, {commandName:'x'});",
     "const { core } = require('photoshop'); core.executeAsModal(f, {commandName:'x'}).then(ok, fail);",
+    "const { core } = require('photoshop'); async function run() { return await core.executeAsModal(f, {commandName:'x'}); }",
   ],
   invalid: [
     { code: "const { core } = require('photoshop'); await core.executeAsModal(f, {commandName:'x'});", errors: [{ messageId: "unhandled" }] },

@@ -216,10 +216,10 @@ export function viewFromJsx(el: TSESTree.JSXOpeningElement): ElementView | null 
 }
 
 /** Merge rule listeners; handlers for the same selector all run, in order. */
-export function mergeVisitors(...listeners: Record<string, unknown>[]): TSESLint.RuleListener {
+export function mergeVisitors(...listeners: TSESLint.RuleListener[]): TSESLint.RuleListener {
   const out: Record<string, (...a: unknown[]) => void> = {};
   for (const l of listeners) {
-    for (const [k, fn] of Object.entries(l)) {
+    for (const [k, fn] of Object.entries(l as Record<string, unknown>)) {
       if (typeof fn !== "function") continue;
       const prev = out[k];
       out[k] = prev ? (...a: unknown[]) => { prev(...a); (fn as (...a: unknown[]) => void)(...a); } : (fn as (...a: unknown[]) => void);

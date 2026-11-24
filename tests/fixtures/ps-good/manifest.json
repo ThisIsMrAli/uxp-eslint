@@ -1,0 +1,20 @@
+{
+  "manifestVersion": 5,
+  "id": "com.fixture.psgood",
+  "name": "PS Good",
+  "version": "1.0.0",
+  "main": "index.html",
+  "host": { "app": "PS", "minVersion": "26.0.0" },
+  "entrypoints": [
+    { "type": "panel", "id": "mainPanel", "label": { "default": "Main" } },
+    { "type": "command", "id": "runIt", "label": { "default": "Run" } }
+  ],
+  "featureFlags": { "enableAlerts": true },
+  "requiredPermissions": {
+    "network": { "domains": ["https://*.example.com"] },
+    "clipboard": "readAndWrite",
+    "localFileSystem": "request",
+    "launchProcess": { "schemes": ["https"], "extensions": ["", ".psd"] },
+    "webview": { "allow": "yes", "domains": ["https://*.adobe.com"] }
+  }
+}

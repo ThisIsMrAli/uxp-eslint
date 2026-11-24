@@ -1,6 +1,6 @@
 /** Node-only helpers: find and read manifest.json, load optional language plugins. Not for browsers. */
 import { readFileSync, existsSync, readdirSync } from "node:fs";
-import { join, resolve, relative, dirname } from "node:path";
+import { join, resolve, relative, dirname, basename } from "node:path";
 import { buildConfig } from "./index.js";
 import type { BuildConfigOptions } from "./configs.js";
 import type { UxpManifest } from "./util/settings.js";
@@ -29,6 +29,19 @@ export function findManifests(cwd = process.cwd(), depth = 4): string[] {
   return found;
 }
 
+const PLUGIN_SUBDIRS = new Set(["plugin", "public", "static", "assets"]);
+
+/** UXP projects under cwd: the manifest plus the folder whose sources should be linted. A manifest kept in plugin/ or public/ next to a package.json lints the parent project (src/ etc.). */
+export function findProjects(cwd = process.cwd(), depth = 4): { manifest: string; root: string }[] {
+  const top = resolve(cwd);
+  return findManifests(top, depth).map((m) => {
+    let root = dirname(m);
+    const parent = dirname(root);
+    if (PLUGIN_SUBDIRS.has(basename(root)) && parent.startsWith(top) && existsSync(join(parent, "package.json"))) root = parent;
+    return { manifest: m, root };
+  });
+}
+
 export function readManifest(path: string): UxpManifest | null {
   try { return JSON.parse(readFileSync(path, "utf8")) as UxpManifest; } catch { return null; }
 }
@@ -42,7 +55,7 @@ async function optional<T>(name: string): Promise<T | undefined> {
   }
 }
 
-export interface NodeConfigOptions extends Omit<BuildConfigOptions, "manifest" | "manifestText" | "css" | "json" | "htmlParser" | "tsParser" | "base"> {
+export interface NodeConfigOptions extends Omit<BuildConfigOptions, "manifest" | "manifestText" | "css" | "json" | "htmlParser" | "tsParser" | "tsPlugin" | "base"> {
   /** Project root to search for manifest.json (default: process.cwd()). */
   cwd?: string;
   /** Explicit manifest path(s). Default: every UXP manifest.json found under cwd. */
@@ -55,18 +68,20 @@ export interface NodeConfigOptions extends Omit<BuildConfigOptions, "manifest" |
  */
 export async function uxpConfig(opts: NodeConfigOptions = {}) {
   const cwd = resolve(opts.cwd ?? process.cwd());
-  const paths = opts.manifest ? (Array.isArray(opts.manifest) ? opts.manifest : [opts.manifest]).map((p) => resolve(cwd, p)) : findManifests(cwd);
+  const projects = opts.manifest
+    ? (Array.isArray(opts.manifest) ? opts.manifest : [opts.manifest]).map((p) => ({ manifest: resolve(cwd, p), root: dirname(resolve(cwd, p)) }))
+    : findProjects(cwd);
   const [css, json, htmlParser, tseslint] = await Promise.all([
     optional<unknown>("@eslint/css"),
     optional<unknown>("@eslint/json"),
     optional<unknown>("@html-eslint/parser"),
-    optional<{ parser?: unknown }>("typescript-eslint"),
+    optional<{ parser?: unknown; plugin?: unknown }>("typescript-eslint"),
   ]);
-  const shared = { ...opts, css, json, htmlParser, tsParser: tseslint?.parser };
-  if (paths.length === 0) return buildConfig(shared as BuildConfigOptions);
-  return paths.flatMap((p) => {
-    const rel = relative(cwd, dirname(p)).split("\\").join("/");
-    const manifest = existsSync(p) ? readManifest(p) ?? undefined : undefined;
+  const shared = { ...opts, css, json, htmlParser, tsParser: tseslint?.parser, tsPlugin: tseslint?.plugin };
+  if (projects.length === 0) return buildConfig(shared as BuildConfigOptions);
+  return projects.flatMap((p) => {
+    const rel = relative(cwd, p.root).split("\\").join("/");
+    const manifest = existsSync(p.manifest) ? readManifest(p.manifest) ?? undefined : undefined;
     return buildConfig({ ...(shared as BuildConfigOptions), manifest, base: rel ? `${rel}/` : "" });
   });
 }

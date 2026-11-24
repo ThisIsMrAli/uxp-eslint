@@ -48,6 +48,7 @@ for (const [cat, items] of Object.entries(css.cssData)) {
   for (const it of items) {
     if (it.status === "obsolete") continue;
     const entry = { since: v(it.browsers) };
+    if (Array.isArray(it.restrictions)) entry.restrictions = it.restrictions;
     if (cat === "properties" && Array.isArray(it.values) && it.values.length) {
       entry.values = Object.fromEntries(it.values.filter((x) => !x.name.includes("(")).map((x) => [x.name, v(x.browsers) ?? entry.since]));
     }

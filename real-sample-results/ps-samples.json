@@ -1,0 +1,294 @@
+[
+ {
+  "filePath": "cross-compatible-js-sample/src/index.js",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/photoshop-handle-modal-errors",
+    "severity": 1,
+    "message": "executeAsModal() rejects when Photoshop is already modal (\"host is in a modal state\"). Await it inside try/catch, add .catch(), or return it to a caller that handles it.",
+    "line": 117,
+    "column": 5,
+    "messageId": "unhandled",
+    "endLine": 121,
+    "endColumn": 7
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "neural-filter-sample/index.js",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/api-min-version",
+    "severity": 2,
+    "message": "`action.addNotificationListener` needs PS 23.0+ (@types/photoshop @minVersion), but manifest host.minVersion is 22.0.0. Raise minVersion or feature-detect it.",
+    "line": 26,
+    "column": 1,
+    "messageId": "hostTooOld",
+    "endLine": 26,
+    "endColumn": 52
+   },
+   {
+    "ruleId": "uxp-lint/api-min-version",
+    "severity": 2,
+    "message": "`core.executeAsModal` needs PS 22.5+ (@types/photoshop @minVersion), but manifest host.minVersion is 22.0.0. Raise minVersion or feature-detect it.",
+    "line": 39,
+    "column": 3,
+    "messageId": "hostTooOld",
+    "endLine": 39,
+    "endColumn": 22
+   },
+   {
+    "ruleId": "uxp-lint/photoshop-handle-modal-errors",
+    "severity": 1,
+    "message": "executeAsModal() rejects when Photoshop is already modal (\"host is in a modal state\"). Await it inside try/catch, add .catch(), or return it to a caller that handles it.",
+    "line": 39,
+    "column": 3,
+    "messageId": "unhandled",
+    "endLine": 53,
+    "endColumn": 5
+   },
+   {
+    "ruleId": "uxp-lint/api-min-version",
+    "severity": 2,
+    "message": "`app.batchPlay` needs PS 23.0+ (@types/photoshop @minVersion), but manifest host.minVersion is 22.0.0. Raise minVersion or feature-detect it.",
+    "line": 40,
+    "column": 5,
+    "messageId": "hostTooOld",
+    "endLine": 40,
+    "endColumn": 18
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 3,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "swc-uxp-react-starter/src/index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<title> is not used by UXP and may render visibly; add `title { display: none; }` or remove it.",
+    "line": 16,
+    "column": 9,
+    "messageId": "element",
+    "endLine": 16,
+    "endColumn": 15
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "swc-uxp-starter/src/index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<title> is not used by UXP and may render visibly; add `title { display: none; }` or remove it.",
+    "line": 17,
+    "column": 5,
+    "messageId": "element",
+    "endLine": 17,
+    "endColumn": 11
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "ui-react-starter/src/components/About.jsx",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<code> is not supported; set font-family on a <span>.",
+    "line": 16,
+    "column": 9,
+    "messageId": "element",
+    "endLine": 16,
+    "endColumn": 15
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "ui-react-starter/src/components/ColorPicker.css",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `outline-radius` is not supported by UXP 5.5.1.",
+    "line": 9,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 9,
+    "endColumn": 23
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `outline-radius` is not supported by UXP 5.5.1.",
+    "line": 66,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 66,
+    "endColumn": 22
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 2,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "ui-svelte-starter/plugin/index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<title> is not used by UXP and may render visibly; add `title { display: none; }` or remove it.",
+    "line": 7,
+    "column": 5,
+    "messageId": "element",
+    "endLine": 7,
+    "endColumn": 11
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "unsplash-plugin-sample/plugin/src/panels/Unsplash.css",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `background-position` is not supported by UXP 3.4.2.",
+    "line": 9,
+    "column": 5,
+    "messageId": "unsupported",
+    "endLine": 9,
+    "endColumn": 32
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "vanilla-js-sample/index.js",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/photoshop-handle-modal-errors",
+    "severity": 1,
+    "message": "executeAsModal() rejects when Photoshop is already modal (\"host is in a modal state\"). Await it inside try/catch, add .catch(), or return it to a caller that handles it.",
+    "line": 81,
+    "column": 15,
+    "messageId": "unhandled",
+    "endLine": 87,
+    "endColumn": 11
+   },
+   {
+    "ruleId": "uxp-lint/photoshop-handle-modal-errors",
+    "severity": 1,
+    "message": "executeAsModal() rejects when Photoshop is already modal (\"host is in a modal state\"). Await it inside try/catch, add .catch(), or return it to a caller that handles it.",
+    "line": 94,
+    "column": 11,
+    "messageId": "unhandled",
+    "endLine": 97,
+    "endColumn": 7
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 2,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "wasm-rust-sample/plugin/index.css",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Value of font-weight `italic` is not supported by UXP 5.5.1.",
+    "line": 20,
+    "column": 16,
+    "messageId": "unsupported",
+    "endLine": 20,
+    "endColumn": 22
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "web-service-call-js-sample/index.js",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/photoshop-modal-scope",
+    "severity": 2,
+    "message": "`createDocument()` modifies the Photoshop document but is not inside core.executeAsModal().",
+    "line": 22,
+    "column": 19,
+    "messageId": "domOutsideModal",
+    "endLine": 22,
+    "endColumn": 33
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 1,
+  "fatalErrorCount": 0,
+  "warningCount": 0,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ }
+]

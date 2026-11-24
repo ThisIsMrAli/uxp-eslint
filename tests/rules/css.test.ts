@@ -10,6 +10,9 @@ cssTester().run("no-unsupported-css", rule("no-unsupported-css"), {
     "@media (prefers-color-scheme: dark) { a { color: white; } }",
     "a { -webkit-font-smoothing: antialiased; }",
     "a { display: inherit; }",
+    "svg { fill: currentColor; }",
+    "a:after { content: ''; }",
+    "@tailwind base; .a { @apply p-4; }",
     { code: "a { gap: 4px; }", options: [{ ignore: ["gap"] }] },
     { code: "a { box-shadow: 0 0 1px black; }", settings: ps("26.0.0") },
   ],
@@ -25,6 +28,8 @@ cssTester().run("no-unsupported-css", rule("no-unsupported-css"), {
     { code: "a { box-shadow: 0 0 1px black; }", settings: ps("24.0.0"), errors: [{ messageId: "newer", data: { kind: "Property", name: "box-shadow", since: "7.3", uxp: "6.3.3" } }] },
     { code: "a { pointer-events: none; }", settings: ps("23.0.0"), errors: [{ messageId: "newer" }] },
     { code: "a { -webkit-font-smoothing: antialiased; }", options: [{ ignoreVendorPrefixed: false }], errors: [{ messageId: "unsupported" }] },
+    { code: "@tailwind base;", options: [{ ignoreBuildTimeAtRules: false }], errors: [{ messageId: "unsupported" }] },
+    { code: "a:first-letter { color: red; }", errors: [{ messageId: "unsupported", data: { kind: "Pseudo-element", name: ":first-letter", target: "" } }] },
     { code: "a { color: color-mix(in srgb, red, blue); }", errors: [{ messageId: "unsupported" }] },
   ],
 });

@@ -1,0 +1,16 @@
+{
+  "manifestVersion": 5,
+  "id": "com.fixture.psbad",
+  "name": "PS Bad",
+  "version": "1.0.0",
+  "main": "index.html",
+  "host": { "app": "PS", "minVersion": "23.0.0" },
+  "entrypoints": [
+    { "type": "panel", "id": "mainPanel", "label": { "default": "Main" }, "main": "index.html" },
+    { "type": "command", "id": "runIt", "label": { "default": "Run" } }
+  ],
+  "requiredPermissions": {
+    "network": { "domains": ["https://api.example.com"] },
+    "launchProcess": { "schemes": ["https"], "extensions": [" "] }
+  }
+}

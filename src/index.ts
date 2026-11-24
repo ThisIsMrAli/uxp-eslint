@@ -42,7 +42,7 @@ export function buildConfig(opts: BuildConfigOptions = {}): FlatConfig[] {
     {
       name: "uxp-lint/js",
       files: b(JS_FILES),
-      plugins: { [PREFIX]: plugin },
+      plugins: { [PREFIX]: plugin, ...(opts.tsPlugin ? { "@typescript-eslint": opts.tsPlugin } : {}) },
       settings,
       languageOptions: { ecmaVersion: "latest", sourceType: "module", parserOptions: { ecmaFeatures: { jsx: true } }, ...(opts.tsParser ? { parser: opts.tsParser } : {}) },
       rules: hostRules(manifestHost, strict),

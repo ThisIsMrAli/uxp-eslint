@@ -1,4 +1,4 @@
-import type { TSESTree } from "@typescript-eslint/utils";
+import type { TSESTree, TSESLint } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
 import { viewFromHtml, viewFromJsx, type ElementView, type HtmlTag } from "../util/ast.js";
 import { UNSUPPORTED_ELEMENTS, UNSUPPORTED_ATTRIBUTES, UNSUPPORTED_ATTRIBUTE_PREFIXES, INPUT_TYPES_UNSUPPORTED } from "../data/html.js";
@@ -64,7 +64,7 @@ export default createRule<Options, MessageIds>({
       if (el.name === "select" && !el.jsx && attr("value")) at(attr("value")!.loc, "selectValue");
       for (const a of el.attrs) {
         const n = a.name.toLowerCase();
-        if (opts.attributes !== false) {
+        if (opts.attributes !== false && !el.name.includes("-")) { // custom elements (sp-*, swc) own their attributes
           const prefixHit = UNSUPPORTED_ATTRIBUTE_PREFIXES.find((p) => n.startsWith(p) && (p !== "item" || /^item(scope|type|prop|id|ref)$/.test(n)));
           if (UNSUPPORTED_ATTRIBUTES.includes(n) || (prefixHit && (prefixHit !== "aria-" || opts.aria === true))) {
             if (!(n === "dir" && el.jsx === false && el.name === "html")) at(a.loc, "attribute", { name: a.name });
@@ -79,7 +79,7 @@ export default createRule<Options, MessageIds>({
         const v = viewFromJsx(node);
         if (v) check(v);
       },
-      ...({ Tag(node: HtmlTag) { check(viewFromHtml(node)); } } as Record<string, unknown>),
+      ...({ Tag(node: HtmlTag) { check(viewFromHtml(node)); } } as unknown as TSESLint.RuleListener),
     };
   },
 });

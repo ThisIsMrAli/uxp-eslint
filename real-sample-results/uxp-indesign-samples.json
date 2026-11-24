@@ -1,0 +1,88 @@
+[
+ {
+  "filePath": "plugins/swc-uxp-react-starter/src/index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<title> is not used by UXP and may render visibly; add `title { display: none; }` or remove it.",
+    "line": 16,
+    "column": 9,
+    "messageId": "element",
+    "endLine": 16,
+    "endColumn": 15
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "plugins/swc-uxp-starter/src/index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<title> is not used by UXP and may render visibly; add `title { display: none; }` or remove it.",
+    "line": 17,
+    "column": 5,
+    "messageId": "element",
+    "endLine": 17,
+    "endColumn": 11
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "plugins/webview-sample/Receiver/index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<title> is not used by UXP and may render visibly; add `title { display: none; }` or remove it.",
+    "line": 6,
+    "column": 3,
+    "messageId": "element",
+    "endLine": 6,
+    "endColumn": 9
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "Inline `onclick` handlers are not reliable in UXP; attach listeners with addEventListener.",
+    "line": 136,
+    "column": 7,
+    "messageId": "inlineHandler",
+    "endLine": 136,
+    "endColumn": 36
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "Inline `onclick` handlers are not reliable in UXP; attach listeners with addEventListener.",
+    "line": 137,
+    "column": 77,
+    "messageId": "inlineHandler",
+    "endLine": 137,
+    "endColumn": 102
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 3,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ }
+]

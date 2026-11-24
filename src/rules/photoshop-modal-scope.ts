@@ -1,6 +1,6 @@
 import type { TSESTree, TSESLint } from "@typescript-eslint/utils";
 import { createRule } from "../util/create-rule.js";
-import { getUxp } from "../util/settings.js";
+import { getUxp, photoshopApiVersion } from "../util/settings.js";
 import { ModuleTracker, propertyName, keyName, staticString, unwrap, mergeVisitors } from "../util/ast.js";
 import { SOURCES } from "../data/sources.js";
 
@@ -28,7 +28,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description: "Require Photoshop state changes (modifying batchPlay, DOM edits) to run inside core.executeAsModal",
       recommended: true,
-      sources: [SOURCES.executeAsModal, SOURCES.forum6687, SOURCES.forum5837],
+      sources: [SOURCES.executeAsModal, SOURCES.psManifestApiVersion, SOURCES.forum6687, SOURCES.forum5837],
     },
     schema: [{ type: "object", properties: { extraModifyingMethods: { type: "array", items: { type: "string" } }, readOnlyDescriptors: { type: "array", items: { type: "string" } }, checkDomMethods: { type: "boolean" } }, additionalProperties: false }],
     messages: {
@@ -41,6 +41,7 @@ export default createRule<Options, MessageIds>({
   create(context, [opts]) {
     const uxp = getUxp(context);
     if (uxp.host && uxp.host !== "PS") return {};
+    if (photoshopApiVersion(uxp) === 1) return {}; // apiVersion 1 allows mutations outside a modal scope (deprecated)
     const sourceCode = context.sourceCode;
     const tracker = new ModuleTracker(new Set(["photoshop"]));
     const readOnly = new Set([...READ_ONLY, ...(opts.readOnlyDescriptors ?? [])]);

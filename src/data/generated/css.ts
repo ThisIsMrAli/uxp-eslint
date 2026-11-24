@@ -17,6 +17,9 @@ const css = {
  "properties": {
   "align-content": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "center": "3.0",
     "flex-end": "3.0",
@@ -28,6 +31,9 @@ const css = {
   },
   "align-items": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "center": "3.0",
     "flex-end": "3.0",
@@ -37,6 +43,9 @@ const css = {
   },
   "align-self": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "center": "3.0",
     "flex-end": "3.0",
@@ -46,6 +55,16 @@ const css = {
   },
   "background": {
    "since": "2.0",
+   "restrictions": [
+    "enum",
+    "image",
+    "color",
+    "position",
+    "length",
+    "repeat",
+    "percentage",
+    "box"
+   ],
    "values": {
     "fixed": "2.0",
     "local": "2.0",
@@ -204,12 +223,18 @@ const css = {
   },
   "background-attachment": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "scroll": "3.0"
    }
   },
   "background-color": {
    "since": "2.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "2.0",
     "aliceblue": "2.0",
@@ -364,18 +389,29 @@ const css = {
   },
   "background-image": {
    "since": "2.0",
+   "restrictions": [
+    "image",
+    "enum"
+   ],
    "values": {
     "none": "2.0"
    }
   },
   "background-repeat": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "no-repeat": "3.0"
    }
   },
   "background-size": {
    "since": "3.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "contain": "3.0",
     "cover": "3.0"
@@ -383,6 +419,12 @@ const css = {
   },
   "border": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width",
+    "line-style",
+    "color"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -540,6 +582,12 @@ const css = {
   },
   "border-bottom": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width",
+    "line-style",
+    "color"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -697,6 +745,9 @@ const css = {
   },
   "border-bottom-color": {
    "since": "2.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "2.0",
     "aliceblue": "2.0",
@@ -850,13 +901,24 @@ const css = {
    }
   },
   "border-bottom-left-radius": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "border-bottom-right-radius": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "border-bottom-style": {
    "since": "2.0",
+   "restrictions": [
+    "line-style"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -864,10 +926,17 @@ const css = {
    }
   },
   "border-bottom-width": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width"
+   ]
   },
   "border-color": {
    "since": "2.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "2.0",
     "aliceblue": "2.0",
@@ -1022,6 +1091,12 @@ const css = {
   },
   "border-left": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width",
+    "line-style",
+    "color"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -1179,6 +1254,9 @@ const css = {
   },
   "border-left-color": {
    "since": "2.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "2.0",
     "aliceblue": "2.0",
@@ -1333,6 +1411,9 @@ const css = {
   },
   "border-left-style": {
    "since": "2.0",
+   "restrictions": [
+    "line-style"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -1340,13 +1421,27 @@ const css = {
    }
   },
   "border-left-width": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width"
+   ]
   },
   "border-radius": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "border-right": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width",
+    "line-style",
+    "color"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -1504,6 +1599,9 @@ const css = {
   },
   "border-right-color": {
    "since": "2.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "2.0",
     "aliceblue": "2.0",
@@ -1658,6 +1756,9 @@ const css = {
   },
   "border-right-style": {
    "since": "2.0",
+   "restrictions": [
+    "line-style"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -1665,10 +1766,17 @@ const css = {
    }
   },
   "border-right-width": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width"
+   ]
   },
   "border-style": {
    "since": "2.0",
+   "restrictions": [
+    "line-style"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -1677,6 +1785,12 @@ const css = {
   },
   "border-top": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width",
+    "line-style",
+    "color"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -1685,6 +1799,9 @@ const css = {
   },
   "border-top-color": {
    "since": "2.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "2.0",
     "aliceblue": "2.0",
@@ -1838,10 +1955,17 @@ const css = {
    }
   },
   "border-top-left-radius": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "border-top-style": {
    "since": "2.0",
+   "restrictions": [
+    "line-style"
+   ],
    "values": {
     "none": "2.0",
     "solid": "2.0",
@@ -1849,19 +1973,34 @@ const css = {
    }
   },
   "border-top-width": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width"
+   ]
   },
   "border-width": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "line-width"
+   ]
   },
   "bottom": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "color": {
    "since": "2.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "2.0",
     "aliceblue": "2.0",
@@ -2016,6 +2155,9 @@ const css = {
   },
   "display": {
    "since": "2.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "block": "2.0",
     "flex": "3.0",
@@ -2027,6 +2169,11 @@ const css = {
   },
   "flex": {
    "since": "3.0",
+   "restrictions": [
+    "length",
+    "number",
+    "percentage"
+   ],
    "values": {
     "auto": "3.0",
     "content": "3.0",
@@ -2035,6 +2182,11 @@ const css = {
   },
   "flex-basis": {
    "since": "3.0",
+   "restrictions": [
+    "length",
+    "number",
+    "percentage"
+   ],
    "values": {
     "auto": "3.0",
     "content": "3.0"
@@ -2042,6 +2194,9 @@ const css = {
   },
   "flex-direction": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "column": "3.0",
     "column-reverse": "3.0",
@@ -2050,23 +2205,39 @@ const css = {
    }
   },
   "flex-grow": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "number"
+   ]
   },
   "flex-shrink": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "number"
+   ]
   },
   "flex-wrap": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "nowrap": "3.0",
     "wrap": "3.0"
    }
   },
   "font-family": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "font"
+   ]
   },
   "font-size": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "large": "2.0",
     "larger": "2.0",
@@ -2081,6 +2252,9 @@ const css = {
   },
   "font-style": {
    "since": "2.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "italic": "2.0",
     "normal": "2.0"
@@ -2088,6 +2262,9 @@ const css = {
   },
   "font-weight": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "50": "3.0",
     "100": "3.0",
@@ -2111,6 +2288,10 @@ const css = {
   },
   "height": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0",
     "fit-content": "3.0",
@@ -2120,6 +2301,9 @@ const css = {
   },
   "justify-content": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "center": "3.0",
     "stretch": "3.0",
@@ -2131,48 +2315,79 @@ const css = {
   },
   "left": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "letter-spacing": {
    "since": "2.0",
+   "restrictions": [
+    "length"
+   ],
    "values": {
     "normal": "2.0"
    }
   },
   "margin": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "margin-bottom": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "margin-left": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "margin-right": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "margin-top": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "max-height": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "none": "2.0",
     "fit-content": "3.0",
@@ -2182,6 +2397,10 @@ const css = {
   },
   "max-width": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "none": "2.0",
     "fit-content": "3.0",
@@ -2191,6 +2410,10 @@ const css = {
   },
   "min-height": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "3.0",
     "fit-content": "3.0",
@@ -2200,6 +2423,10 @@ const css = {
   },
   "min-width": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "3.0",
     "fit-content": "3.0",
@@ -2208,10 +2435,16 @@ const css = {
    }
   },
   "opacity": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "number(0-1)"
+   ]
   },
   "overflow": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "hidden": "3.0",
@@ -2221,6 +2454,9 @@ const css = {
   },
   "overflow-x": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "hidden": "3.0",
@@ -2230,6 +2466,9 @@ const css = {
   },
   "overflow-y": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "hidden": "3.0",
@@ -2238,28 +2477,55 @@ const css = {
    }
   },
   "padding": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "padding-bottom": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "padding-left": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "padding-right": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "padding-top": {
-   "since": "2.0"
+   "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "right": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "text-align": {
    "since": "3.0",
+   "restrictions": [
+    "string"
+   ],
    "values": {
     "center": "3.0",
     "left": "3.0",
@@ -2268,6 +2534,10 @@ const css = {
   },
   "text-overflow": {
    "since": "3.0",
+   "restrictions": [
+    "enum",
+    "string"
+   ],
    "values": {
     "clip": "3.0",
     "ellipsis": "3.0"
@@ -2275,12 +2545,19 @@ const css = {
   },
   "top": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0"
    }
   },
   "visibility": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "hidden": "3.0",
     "visible": "3.0"
@@ -2288,6 +2565,10 @@ const css = {
   },
   "width": {
    "since": "2.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "auto": "2.0",
     "fit-content": "3.0",
@@ -2310,6 +2591,9 @@ const css = {
   },
   "background-blend-mode": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "normal": "3.0",
     "multiply": "3.0",
@@ -2330,13 +2614,23 @@ const css = {
    }
   },
   "background-clip": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "box"
+   ]
   },
   "background-origin": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "box"
+   ]
   },
   "background-position-x": {
    "since": "3.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "center": "3.0",
     "left": "3.0",
@@ -2345,6 +2639,10 @@ const css = {
   },
   "background-position-y": {
    "since": "3.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ],
    "values": {
     "bottom": "3.0",
     "center": "3.0",
@@ -2353,19 +2651,33 @@ const css = {
   },
   "border-collapse": {
    "since": "5.6",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "collapse": "5.6",
     "separate": "5.6"
    }
   },
   "border-spacing": {
-   "since": "5.6"
+   "since": "5.6",
+   "restrictions": [
+    "length"
+   ]
   },
   "border-top-right-radius": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "length",
+    "percentage"
+   ]
   },
   "content": {
    "since": "3.0",
+   "restrictions": [
+    "string",
+    "url"
+   ],
    "values": {
     "icon": "3.0",
     "none": "3.0",
@@ -2374,6 +2686,11 @@ const css = {
   },
   "cursor": {
    "since": "3.0",
+   "restrictions": [
+    "url",
+    "number",
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "crosshair": "3.0",
@@ -2394,6 +2711,11 @@ const css = {
   },
   "fill": {
    "since": "3.0",
+   "restrictions": [
+    "color",
+    "enum",
+    "url"
+   ],
    "values": {
     "none": "3.0",
     "transparent": "3.0",
@@ -2548,10 +2870,16 @@ const css = {
    }
   },
   "fill-opacity": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "number(0-1)"
+   ]
   },
   "flex-flow": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "column": "3.0",
     "column-reverse": "3.0",
@@ -2564,6 +2892,9 @@ const css = {
   },
   "isolation": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "isolate": "3.0"
@@ -2574,12 +2905,20 @@ const css = {
   },
   "line-height": {
    "since": "3.0",
+   "restrictions": [
+    "number",
+    "length",
+    "percentage"
+   ],
    "values": {
     "normal": "3.0"
    }
   },
   "object-fit": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "contain": "3.0",
     "cover": "3.0",
@@ -2589,13 +2928,28 @@ const css = {
    }
   },
   "object-position": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "position",
+    "length",
+    "percentage"
+   ]
   },
   "order": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "integer"
+   ]
   },
   "outline": {
    "since": "3.0",
+   "restrictions": [
+    "length",
+    "line-width",
+    "line-style",
+    "color",
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "invert": "3.0",
@@ -2755,6 +3109,10 @@ const css = {
   },
   "outline-color": {
    "since": "3.0",
+   "restrictions": [
+    "enum",
+    "color"
+   ],
    "values": {
     "invert": "3.0",
     "transparent": "3.0",
@@ -2909,10 +3267,17 @@ const css = {
    }
   },
   "outline-offset": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "length"
+   ]
   },
   "outline-style": {
    "since": "3.0",
+   "restrictions": [
+    "line-style",
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "none": "3.0",
@@ -2921,10 +3286,17 @@ const css = {
    }
   },
   "outline-width": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "length",
+    "line-width"
+   ]
   },
   "pointer-events": {
    "since": "7.2",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "none": "7.2",
     "auto": "7.2"
@@ -2932,6 +3304,9 @@ const css = {
   },
   "position": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "absolute": "3.0",
     "fixed": "3.0",
@@ -2944,6 +3319,11 @@ const css = {
   },
   "stroke": {
    "since": "3.0",
+   "restrictions": [
+    "color",
+    "enum",
+    "url"
+   ],
    "values": {
     "none": "3.0",
     "transparent": "3.0",
@@ -3098,13 +3478,23 @@ const css = {
    }
   },
   "stroke-opacity": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "number(0-1)"
+   ]
   },
   "stroke-width": {
-   "since": "3.0"
+   "since": "3.0",
+   "restrictions": [
+    "percentage",
+    "length"
+   ]
   },
   "table-layout": {
    "since": "5.6",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "auto": "5.6",
     "fixed": "5.6"
@@ -3112,6 +3502,10 @@ const css = {
   },
   "text-decoration": {
    "since": "3.0",
+   "restrictions": [
+    "enum",
+    "color"
+   ],
    "values": {
     "dashed": "3.0",
     "dotted": "3.0",
@@ -3275,6 +3669,9 @@ const css = {
   },
   "text-decoration-color": {
    "since": "3.0",
+   "restrictions": [
+    "color"
+   ],
    "values": {
     "transparent": "3.0",
     "aliceblue": "3.0",
@@ -3429,6 +3826,9 @@ const css = {
   },
   "text-decoration-line": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "line-through": "3.0",
     "none": "3.0",
@@ -3438,6 +3838,9 @@ const css = {
   },
   "text-decoration-style": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "dashed": "3.0",
     "dotted": "3.0",
@@ -3449,6 +3852,9 @@ const css = {
   },
   "touch-action": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "auto": "3.0",
     "cross-slide-x": "3.0",
@@ -3463,12 +3869,20 @@ const css = {
   },
   "transform": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "none": "3.0"
    }
   },
   "transform-origin": {
    "since": "8.0.1",
+   "restrictions": [
+    "position",
+    "length",
+    "percentage"
+   ],
    "values": {
     "left": "8.0.1",
     "center": "8.0.1",
@@ -3482,6 +3896,10 @@ const css = {
   },
   "vertical-align": {
    "since": "3.0",
+   "restrictions": [
+    "percentage",
+    "length"
+   ],
    "values": {
     "auto": "3.0",
     "baseline": "3.0",
@@ -3497,6 +3915,9 @@ const css = {
   },
   "word-break": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "break-all": "3.0",
     "keep-all": "3.0",
@@ -3505,6 +3926,9 @@ const css = {
   },
   "writing-mode": {
    "since": "3.0",
+   "restrictions": [
+    "enum"
+   ],
    "values": {
     "horizontal-tb": "3.0",
     "sideways-lr": "3.0",
@@ -3515,12 +3939,20 @@ const css = {
   },
   "z-index": {
    "since": "3.0",
+   "restrictions": [
+    "integer"
+   ],
    "values": {
     "auto": "3.0"
    }
   },
   "box-shadow": {
    "since": "7.3",
+   "restrictions": [
+    "length",
+    "color",
+    "enum"
+   ],
    "values": {
     "none": "7.3",
     "transparent": "7.3",

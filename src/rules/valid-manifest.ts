@@ -15,7 +15,7 @@ type JValue = JObject | JArray | JString | (JNode & { value?: unknown });
 const get = (o: JValue | undefined, k: string): JValue | undefined => (o?.type === "Object" ? (o as JObject).members.find((m) => m.name.value === k)?.value : undefined);
 const KNOWN_HOSTS = new Set(["PS", "ID", "premierepro", "XD"]);
 
-export default createRule<[], MessageIds>({
+export default createRule<[{ reportUnknownHostVersion?: boolean }], MessageIds>({
   name: "valid-manifest",
   meta: {
     type: "problem",
@@ -25,7 +25,7 @@ export default createRule<[], MessageIds>({
       recommended: true,
       sources: [SOURCES.manifestV5, SOURCES.forum10557, SOURCES.forum12117],
     },
-    schema: [],
+    schema: [{ type: "object", properties: { reportUnknownHostVersion: { type: "boolean" } }, additionalProperties: false }],
     messages: {
       entrypointMain: "Remove `main` from entrypoint `{{id}}`; `main` belongs at the top level of manifest.json, not inside entrypoints (community report, forum thread 10557).",
       blankExtension: "`launchProcess.extensions` entry {{raw}} is whitespace. Use an empty string \"\" to allow opening folders.",
@@ -36,8 +36,8 @@ export default createRule<[], MessageIds>({
       unknownHostVersion: "No documented UXP version is known for {{app}} {{version}} (older than every row in the host→UXP table); version checks will be skipped.",
     },
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: [{ reportUnknownHostVersion: false }],
+  create(context, [opts]) {
     if (!/(^|[\\/])manifest\.json$/.test(context.filename)) return {};
     return {
       Document(node: { body: JValue }) {
@@ -64,7 +64,7 @@ export default createRule<[], MessageIds>({
           const min = get(h, "minVersion") as JString | undefined;
           if (app && !KNOWN_HOSTS.has(app)) context.report({ loc: get(h, "app")!.loc, messageId: "unknownHost", data: { app } });
           if (!min) context.report({ loc: h.loc, messageId: "missingMinVersion" });
-          else if (app && app !== "XD" && KNOWN_HOSTS.has(app) && typeof min.value === "string" && uxpForHost(app, min.value) === null) context.report({ loc: min.loc, messageId: "unknownHostVersion", data: { app, version: min.value } });
+          else if (opts.reportUnknownHostVersion && app && app !== "XD" && KNOWN_HOSTS.has(app) && typeof min.value === "string" && uxpForHost(app, min.value) === null) context.report({ loc: min.loc, messageId: "unknownHostVersion", data: { app, version: min.value } });
         }
         const eps = get(root, "entrypoints");
         if (eps?.type === "Array") {

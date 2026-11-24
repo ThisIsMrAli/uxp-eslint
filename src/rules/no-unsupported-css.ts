@@ -3,7 +3,9 @@ import { getUxp } from "../util/settings.js";
 import { checkCss, checkCssValue, isKnownWebFunction, type CssVerdict } from "../util/css-data.js";
 import { SOURCES } from "../data/sources.js";
 
-type Options = [{ ignore?: string[]; ignoreVendorPrefixed?: boolean; checkValues?: boolean }];
+type Options = [{ ignore?: string[]; ignoreVendorPrefixed?: boolean; checkValues?: boolean; ignoreBuildTimeAtRules?: boolean }];
+/** At-rules consumed by Tailwind/PostCSS at build time; they never reach UXP. */
+const BUILD_TIME_AT_RULES = new Set(["tailwind", "apply", "layer", "config", "screen", "variants", "responsive", "theme", "source", "plugin", "utility", "custom-variant", "reference"]);
 type MessageIds = "unsupported" | "newer";
 
 // Minimal css-tree node shapes (from @eslint/css); kept local so @eslint/css stays an optional peer.
@@ -19,13 +21,13 @@ export default createRule<Options, MessageIds>({
       recommended: true,
       sources: ["jardicc/vscode-uxp-validator UXP CSS data (MIT)", SOURCES.knownIssues, "AdobeDocs/uxp reference-css"],
     },
-    schema: [{ type: "object", properties: { ignore: { type: "array", items: { type: "string" } }, ignoreVendorPrefixed: { type: "boolean" }, checkValues: { type: "boolean" } }, additionalProperties: false }],
+    schema: [{ type: "object", properties: { ignore: { type: "array", items: { type: "string" } }, ignoreVendorPrefixed: { type: "boolean" }, checkValues: { type: "boolean" }, ignoreBuildTimeAtRules: { type: "boolean" } }, additionalProperties: false }],
     messages: {
       unsupported: "{{kind}} `{{name}}` is not supported by UXP{{target}}.",
       newer: "{{kind}} `{{name}}` needs UXP {{since}}+, but the target is UXP {{uxp}}.",
     },
   },
-  defaultOptions: [{ ignore: [], ignoreVendorPrefixed: true, checkValues: true }],
+  defaultOptions: [{ ignore: [], ignoreVendorPrefixed: true, checkValues: true, ignoreBuildTimeAtRules: true }],
   create(context, [opts]) {
     const uxpVersion = getUxp(context).uxpVersion;
     const ignore = new Set((opts.ignore ?? []).map((x) => x.toLowerCase()));
@@ -53,8 +55,13 @@ export default createRule<Options, MessageIds>({
           if (!vv.ok && !ignore.has(`${prop}:${val}`.toLowerCase())) report(kids[0]!, `Value of ${prop}`, val, vv);
         }
       },
-      Atrule(node: CssNode) { report(node, "At-rule", `@${node.name}`, checkCss("atDirectives", `@${node.name}`, uxpVersion)); },
-      PseudoClassSelector(node: CssNode) { report(node, "Pseudo-class", `:${node.name}`, checkCss("pseudoClasses", node.name ?? "", uxpVersion)); },
+      Atrule(node: CssNode) { if (opts.ignoreBuildTimeAtRules !== false && BUILD_TIME_AT_RULES.has(node.name ?? "")) return; report(node, "At-rule", `@${node.name}`, checkCss("atDirectives", `@${node.name}`, uxpVersion)); },
+      PseudoClassSelector(node: CssNode) {
+        const n = node.name ?? "";
+        // CSS2 single-colon pseudo-elements (:before, :after, :first-line, :first-letter)
+        if (["before", "after", "first-line", "first-letter"].includes(n)) { report(node, "Pseudo-element", `:${n}`, checkCss("pseudoElements", n, uxpVersion)); return; }
+        report(node, "Pseudo-class", `:${n}`, checkCss("pseudoClasses", n, uxpVersion));
+      },
       PseudoElementSelector(node: CssNode) { report(node, "Pseudo-element", `::${node.name}`, checkCss("pseudoElements", node.name ?? "", uxpVersion)); },
       Dimension(node: CssNode) { if (skipValues) return; report(node, "Unit", node.unit ?? "", checkCss("units", node.unit ?? "", uxpVersion)); },
       Function(node: CssNode) {

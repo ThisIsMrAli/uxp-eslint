@@ -57,6 +57,8 @@ export interface BuildConfigOptions {
   htmlParser?: unknown;
   /** typescript-eslint parser for .ts/.tsx (optional). */
   tsParser?: unknown;
+  /** typescript-eslint plugin object, registered (no rules enabled) so `eslint-disable @typescript-eslint/...` comments resolve. */
+  tsPlugin?: unknown;
   /** Glob prefix, e.g. "plugin/" when the UXP plugin lives in a subfolder. */
   base?: string;
 }

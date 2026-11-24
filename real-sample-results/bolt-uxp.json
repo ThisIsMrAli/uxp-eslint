@@ -1,0 +1,172 @@
+[
+ {
+  "filePath": "index.html",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-html",
+    "severity": 1,
+    "message": "<title> is not used by UXP and may render visibly; add `title { display: none; }` or remove it.",
+    "line": 6,
+    "column": 5,
+    "messageId": "element",
+    "endLine": 6,
+    "endColumn": 11
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "src/app.css",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `color-scheme` is not supported by UXP.",
+    "line": 7,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 7,
+    "endColumn": 27
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `font-synthesis` is not supported by UXP.",
+    "line": 10,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 10,
+    "endColumn": 23
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `text-rendering` is not supported by UXP.",
+    "line": 11,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 11,
+    "endColumn": 37
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `place-items` is not supported by UXP.",
+    "line": 32,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 32,
+    "endColumn": 22
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Property `transition` is not supported by UXP.",
+    "line": 62,
+    "column": 3,
+    "messageId": "unsupported",
+    "endLine": 62,
+    "endColumn": 33
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-css",
+    "severity": 1,
+    "message": "Pseudo-class `:focus-visible` is not supported by UXP.",
+    "line": 68,
+    "column": 7,
+    "messageId": "unsupported",
+    "endLine": 68,
+    "endColumn": 21
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 0,
+  "fatalErrorCount": 0,
+  "warningCount": 6,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "vite-uxp-plugin/src/ccx.ts",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-unsupported-fs-method",
+    "severity": 2,
+    "message": "`fs.mkdirSync` is not part of UXP's fs module (documented: readFile, readFileSync, writeFile, writeFileSync, open, close, read, write, lstat, lstatSync, rename, copyFile, unlink, mkdir, rmdir, readdir, readdirSync). Use await fs.mkdir.",
+    "line": 13,
+    "column": 6,
+    "messageId": "unsupported",
+    "endLine": 13,
+    "endColumn": 15
+   },
+   {
+    "ruleId": "uxp-lint/no-unsupported-fs-method",
+    "severity": 2,
+    "message": "`fs.createWriteStream` is not part of UXP's fs module (documented: readFile, readFileSync, writeFile, writeFileSync, open, close, read, write, lstat, lstatSync, rename, copyFile, unlink, mkdir, rmdir, readdir, readdirSync).",
+    "line": 18,
+    "column": 25,
+    "messageId": "unsupported",
+    "endLine": 18,
+    "endColumn": 42
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 2,
+  "fatalErrorCount": 0,
+  "warningCount": 0,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "vite-uxp-plugin/src/hot-reload.ts",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-node-builtin-modules",
+    "severity": 2,
+    "message": "`http` is a Node.js module with no UXP equivalent; it fails at runtime in UXP. Use fetch() with requiredPermissions.network.",
+    "line": 1,
+    "column": 23,
+    "messageId": "nodeOnly",
+    "endLine": 1,
+    "endColumn": 29
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 1,
+  "fatalErrorCount": 0,
+  "warningCount": 0,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "vite-uxp-plugin/src/index.ts",
+  "messages": [
+   {
+    "ruleId": "uxp-lint/no-node-builtin-modules",
+    "severity": 2,
+    "message": "`child_process` is a Node.js module with no UXP equivalent; it fails at runtime in UXP. Use require(\"uxp\").shell.openPath/openExternal or a hybrid plugin.",
+    "line": 2,
+    "column": 26,
+    "messageId": "nodeOnly",
+    "endLine": 2,
+    "endColumn": 41
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 1,
+  "fatalErrorCount": 0,
+  "warningCount": 0,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ }
+]

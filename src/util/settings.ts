@@ -1,5 +1,5 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { uxpForHost } from "./version.js";
+import { uxpForHost, compareVersions } from "./version.js";
 
 export interface UxpManifest {
   manifestVersion?: number;
@@ -33,6 +33,20 @@ export interface UxpSettings {
   hostMinVersion?: string;
   /** Override the minimum UXP version. Defaults to the version mapped from host.minVersion. */
   uxpVersion?: string;
+}
+
+/**
+ * Photoshop apiVersion: host.data.apiVersion, else the documented default
+ * (minVersion < 23.0.0 => 1, otherwise 2). Null when there is no manifest.
+ */
+export function photoshopApiVersion(r: ResolvedUxp): number | null {
+  if (!r.manifest) return null;
+  const hosts = r.manifest.host ? (Array.isArray(r.manifest.host) ? r.manifest.host : [r.manifest.host]) : [];
+  const ps = hosts.find((h) => h.app === "PS") as { minVersion?: string; data?: { apiVersion?: unknown } } | undefined;
+  if (!ps) return null;
+  if (typeof ps.data?.apiVersion === "number") return ps.data.apiVersion;
+  if (!ps.minVersion) return null;
+  return compareVersions(ps.minVersion, "23.0.0") < 0 ? 1 : 2;
 }
 
 export interface ResolvedUxp {

@@ -2,7 +2,7 @@
 /** uxp-lint [dir] [--format json|stylish|sarif] [--strict] [--fix] — zero-config ESLint run with eslint-plugin-uxp-lint. */
 import { ESLint } from "eslint";
 import { resolve } from "node:path";
-import { uxpConfig } from "./node.js";
+import { uxpConfig, findProjects } from "./node.js";
 
 const args = process.argv.slice(2);
 const flag = (n: string) => args.includes(n);
@@ -14,11 +14,13 @@ const config = await uxpConfig({ cwd: dir, level: flag("--strict") ? "strict" : 
 const eslint = new ESLint({
   cwd: dir,
   overrideConfigFile: true,
-  overrideConfig: [{ ignores: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/*.min.js", "**/vendor/**"] }, ...config],
+  // Build tooling and servers run in Node, not UXP; WebView content runs in a browser engine, not UXP.
+  overrideConfig: [{ linterOptions: { reportUnusedDisableDirectives: "off" } }, { ignores: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/*.min.js", "**/vendor/**", "**/*.config.{js,cjs,mjs,ts,mts,cts}", "**/scripts/**", "**/server/**", "**/webview-ui/**", ...(val("--ignore")?.split(",") ?? [])] }, ...config],
   fix: flag("--fix"),
   errorOnUnmatchedPattern: false,
 });
-const results = await eslint.lintFiles(["."]);
+const roots = [...new Set(findProjects(dir).map((p) => p.root))];
+const results = await eslint.lintFiles(roots.length ? roots : ["."]);
 if (flag("--fix")) await ESLint.outputFixes(results);
 if (format === "sarif") {
   const sarif = {

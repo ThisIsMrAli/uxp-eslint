@@ -1,0 +1,4 @@
+.row { display: grid; gap: 8px; }
+.title { font: bold 12px Arial; text-transform: uppercase; }
+.card { box-shadow: 0 1px 2px black; transition: opacity 200ms; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }

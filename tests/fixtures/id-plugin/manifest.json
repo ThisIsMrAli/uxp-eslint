@@ -1,0 +1,9 @@
+{
+  "manifestVersion": 5,
+  "id": "com.fixture.id",
+  "name": "ID",
+  "version": "1.0.0",
+  "main": "index.js",
+  "host": { "app": "ID", "minVersion": "18.5.0" },
+  "entrypoints": [{ "type": "command", "id": "go", "label": { "default": "Go" } }]
+}

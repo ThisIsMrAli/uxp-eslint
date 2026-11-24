@@ -14,6 +14,7 @@ export const SOURCES = {
   forum12117: "https://forums.creativeclouddeveloper.com/t/released-a-portrait-retouching-plugin-some-uxp-lessons-from-the-build/12117",
   forum5837: "https://forums.creativeclouddeveloper.com/t/error-host-is-in-a-modal-state/5837",
   forum6687: "https://forums.creativeclouddeveloper.com/t/how-to-know-which-batchplay-actions-require-executeasmodal-is-there-any-downside-to-executing-all-as-modal/6687",
+  psManifestApiVersion: "https://github.com/AdobeDocs/uxp-photoshop/blob/9bd99ffedbaf0e79d525ee2ffe200eb29a8e6aaf/src/pages/guides/uxp-guide/uxp-misc/manifest-v4/photoshop-manifest/index.md#apiversion",
   uiPlaygroundReadme: "https://github.com/AdobeDocs/uxp-photoshop-plugin-samples/tree/main/ui-playground",
 } as const;
 export type Confidence = "docs" | "community";

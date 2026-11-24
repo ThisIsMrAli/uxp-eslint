@@ -8,6 +8,7 @@ htmlTester().run("no-unsupported-html (html)", R, {
     '<select><option value="a">A</option></select>',
     '<label><input type="checkbox" /> Check</label>',
     '<div aria-label="x"></div>',
+    '<sp-theme dir="ltr" hidden></sp-theme>',
     { code: "<ul><li>x</li></ul>", options: [{ elements: false }] },
   ],
   invalid: [
