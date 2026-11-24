@@ -1,0 +1,26 @@
+{
+ "$source": {
+  "repo": "https://github.com/AdobeDocs/uxp",
+  "file": "src/pages/uxp-api/reference-js/Modules/fs/fs.md",
+  "commit": "f04f65e02065b4cd8c78d9d26bcba2ccf6943c58"
+ },
+ "methods": [
+  "readFile",
+  "readFileSync",
+  "writeFile",
+  "writeFileSync",
+  "open",
+  "close",
+  "read",
+  "write",
+  "lstat",
+  "lstatSync",
+  "rename",
+  "copyFile",
+  "unlink",
+  "mkdir",
+  "rmdir",
+  "readdir",
+  "readdirSync"
+ ]
+}

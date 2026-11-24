@@ -1,0 +1,73 @@
+import type { TSESLint } from "@typescript-eslint/utils";
+import { uxpForHost } from "./version.js";
+
+export interface UxpManifest {
+  manifestVersion?: number;
+  id?: string;
+  main?: string;
+  host?: { app?: string; minVersion?: string; data?: Record<string, unknown> } | { app?: string; minVersion?: string }[];
+  entrypoints?: { type?: string; id?: string; main?: string }[];
+  requiredPermissions?: {
+    network?: { domains?: string[] | "all" | string };
+    clipboard?: "read" | "readAndWrite" | string;
+    localFileSystem?: "plugin" | "request" | "fullAccess" | string;
+    launchProcess?: { schemes?: string[]; extensions?: string[] };
+    ipc?: { enablePluginCommunication?: boolean };
+    webview?: { allow?: string; domains?: string[] | "all" | string; enableMessageBridge?: string };
+    allowCodeGenerationFromStrings?: boolean;
+    enableUserInfo?: boolean;
+  };
+  featureFlags?: { enableAlerts?: boolean; [k: string]: unknown };
+  [k: string]: unknown;
+}
+
+/** Shape of `settings.uxp` that every rule reads. All fields optional. */
+export interface UxpSettings {
+  /** Parsed manifest.json object. */
+  manifest?: UxpManifest;
+  /** Raw manifest.json text (parsed lazily if `manifest` is absent). */
+  manifestText?: string;
+  /** Override the host app ("PS", "ID", "premierepro"). Defaults to manifest host.app. */
+  host?: string;
+  /** Override host minimum version. Defaults to manifest host.minVersion. */
+  hostMinVersion?: string;
+  /** Override the minimum UXP version. Defaults to the version mapped from host.minVersion. */
+  uxpVersion?: string;
+}
+
+export interface ResolvedUxp {
+  manifest: UxpManifest | null;
+  manifestVersion: number | null;
+  host: string | null;
+  hosts: string[];
+  hostMinVersion: string | null;
+  uxpVersion: string | null;
+}
+
+const cache = new WeakMap<object, ResolvedUxp>();
+
+export function getUxp(context: Readonly<TSESLint.RuleContext<string, readonly unknown[]>>): ResolvedUxp {
+  const s = ((context.settings as Record<string, unknown> | undefined)?.uxp ?? {}) as UxpSettings;
+  const cached = cache.get(s);
+  if (cached) return cached;
+  let manifest: UxpManifest | null = s.manifest ?? null;
+  if (!manifest && typeof s.manifestText === "string") {
+    try { manifest = JSON.parse(s.manifestText) as UxpManifest; } catch { manifest = null; }
+  }
+  const hostEntries = manifest?.host ? (Array.isArray(manifest.host) ? manifest.host : [manifest.host]) : [];
+  const hosts = hostEntries.map((h) => h.app).filter((x): x is string => typeof x === "string");
+  const host = s.host ?? hosts[0] ?? null;
+  const entry = hostEntries.find((h) => h.app === host) ?? hostEntries[0];
+  const hostMinVersion = s.hostMinVersion ?? (typeof entry?.minVersion === "string" ? entry.minVersion : null);
+  const uxpVersion = s.uxpVersion ?? (host && hostMinVersion ? uxpForHost(host, hostMinVersion) : null);
+  const r: ResolvedUxp = {
+    manifest,
+    manifestVersion: typeof manifest?.manifestVersion === "number" ? manifest.manifestVersion : null,
+    host,
+    hosts: s.host ? [s.host] : hosts,
+    hostMinVersion,
+    uxpVersion,
+  };
+  cache.set(s, r);
+  return r;
+}

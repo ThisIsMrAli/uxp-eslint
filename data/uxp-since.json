@@ -1,0 +1,916 @@
+{
+ "$source": {
+  "repo": "https://github.com/AdobeDocs/uxp",
+  "dir": "src/pages/uxp-api/reference-js",
+  "commit": "f04f65e02065b4cd8c78d9d26bcba2ccf6943c58",
+  "note": "globals: H1 title of each doc page with a '**Since**' line directly under it; members: '<page title>.<H2/H3 heading>'. Versions are UXP versions."
+ },
+ "globals": {
+  "crypto": {
+   "since": "6.2",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Crypto/Crypto.md"
+  },
+  "Blob": {
+   "since": "6.3",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Blob.md"
+  },
+  "Headers": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Headers.md"
+  },
+  "Request": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Request.md"
+  },
+  "Response": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Response.md"
+  },
+  "CanvasGradient": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/CanvasGradient.md"
+  },
+  "CanvasRenderingContext2D": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/CanvasRenderingContext2D.md"
+  },
+  "IntersectionObserver": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserverEntry": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "NodeFilter": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/NodeFilter.md"
+  },
+  "Path2D": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/Path2D.md"
+  },
+  "ResizeObserver": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserver.md"
+  },
+  "ResizeObserverEntry": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserverEntry.md"
+  },
+  "ResizeObserverSize": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserverSize.md"
+  },
+  "ShadowRoot": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ShadowRoot.md"
+  },
+  "alert": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/alert.md"
+  },
+  "confirm": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/confirm.md"
+  },
+  "prompt": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/prompt.md"
+  },
+  "HTMLCanvasElement": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLCanvasElement.md"
+  },
+  "HTMLSlotElement": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSlotElement.md"
+  },
+  "HTMLTemplateElement": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTemplateElement.md"
+  },
+  "HTMLWebViewElement": {
+   "since": "6.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLWebViewElement.md"
+  },
+  "ImageBlob": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/ImageBlob/ImageBlob.md"
+  },
+  "path": {
+   "since": "6.4.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Path/Path.md"
+  },
+  "ReadableStream": {
+   "since": "6.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Streams/ReadableStream.md"
+  },
+  "uxp.userInfo": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/User Information/UserInfo.md"
+  },
+  "uxp.xmp.XMPDateTime": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPDateTime.md"
+  },
+  "uxp.xmp.XMPFile": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPFile.md"
+  },
+  "XMPFileInfo": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPFileInfo.md"
+  },
+  "XMPIterator": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPIterator.md"
+  },
+  "uxp.xmp.XMPMeta": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPMeta.md"
+  },
+  "XMPPacketInfo": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPPacketInfo.md"
+  },
+  "XMPProperty": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPProperty.md"
+  },
+  "uxp.xmp.XMPUtils": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/XMP Classes/XMPUtils.md"
+  },
+  "uxp.xmp": {
+   "since": "7.2.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/XMP/getting-started/xmp.md"
+  }
+ },
+ "members": {
+  "clipboard.write": {
+   "since": "6.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Clipboard.md"
+  },
+  "clipboard.writeText": {
+   "since": "6.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Clipboard.md"
+  },
+  "clipboard.read": {
+   "since": "6.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Clipboard.md"
+  },
+  "clipboard.readText": {
+   "since": "6.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Clipboard.md"
+  },
+  "clipboard.clearContent": {
+   "since": "6.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/Clipboard.md"
+  },
+  "FormData.append": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.delete": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.entries": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.get": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.getAll": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.has": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.keys": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.set": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "FormData.values": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Data Transfers/FormData.md"
+  },
+  "Element.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/Element.md"
+  },
+  "Element.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/Element.md"
+  },
+  "Element.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/Element.md"
+  },
+  "Element.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/Element.md"
+  },
+  "Element.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/Element.md"
+  },
+  "Element.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/Element.md"
+  },
+  "IntersectionObserver.root": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserver.rootMargin": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserver.thresholds": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserver.scrollMargin": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserver.observe": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserver.unobserve": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserver.disconnect": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserver.takeRecords": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserver.md"
+  },
+  "IntersectionObserverEntry.time": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "IntersectionObserverEntry.rootBounds": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "IntersectionObserverEntry.boundingClientRect": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "IntersectionObserverEntry.intersectionRect": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "IntersectionObserverEntry.isIntersecting": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "IntersectionObserverEntry.intersectionRatio": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "IntersectionObserverEntry.target": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/IntersectionObserverEntry.md"
+  },
+  "ResizeObserver.observe": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserver.md"
+  },
+  "ResizeObserver.unobserve": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserver.md"
+  },
+  "ResizeObserver.disconnect": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserver.md"
+  },
+  "ResizeObserverEntry.target": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserverEntry.md"
+  },
+  "ResizeObserverEntry.contentRect": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserverEntry.md"
+  },
+  "ResizeObserverEntry.borderBoxSize": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserverEntry.md"
+  },
+  "ResizeObserverEntry.contentBoxSize": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserverEntry.md"
+  },
+  "ResizeObserverEntry.devicePixelContentBoxSize": {
+   "since": "8.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML DOM/ResizeObserverEntry.md"
+  },
+  "HTMLAnchorElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLAnchorElement.md"
+  },
+  "HTMLAnchorElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLAnchorElement.md"
+  },
+  "HTMLAnchorElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLAnchorElement.md"
+  },
+  "HTMLAnchorElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLAnchorElement.md"
+  },
+  "HTMLAnchorElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLAnchorElement.md"
+  },
+  "HTMLAnchorElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLAnchorElement.md"
+  },
+  "HTMLAnchorElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLAnchorElement.md"
+  },
+  "HTMLBodyElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLBodyElement.md"
+  },
+  "HTMLBodyElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLBodyElement.md"
+  },
+  "HTMLBodyElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLBodyElement.md"
+  },
+  "HTMLBodyElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLBodyElement.md"
+  },
+  "HTMLBodyElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLBodyElement.md"
+  },
+  "HTMLBodyElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLBodyElement.md"
+  },
+  "HTMLBodyElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLBodyElement.md"
+  },
+  "HTMLButtonElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLButtonElement.md"
+  },
+  "HTMLButtonElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLButtonElement.md"
+  },
+  "HTMLButtonElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLButtonElement.md"
+  },
+  "HTMLButtonElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLButtonElement.md"
+  },
+  "HTMLButtonElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLButtonElement.md"
+  },
+  "HTMLButtonElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLButtonElement.md"
+  },
+  "HTMLButtonElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLButtonElement.md"
+  },
+  "HTMLCanvasElement.getContext": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLCanvasElement.md"
+  },
+  "HTMLDialogElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLDialogElement.md"
+  },
+  "HTMLDialogElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLDialogElement.md"
+  },
+  "HTMLDialogElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLDialogElement.md"
+  },
+  "HTMLDialogElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLDialogElement.md"
+  },
+  "HTMLDialogElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLDialogElement.md"
+  },
+  "HTMLDialogElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLDialogElement.md"
+  },
+  "HTMLDialogElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLDialogElement.md"
+  },
+  "HTMLElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLElement.md"
+  },
+  "HTMLElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLElement.md"
+  },
+  "HTMLElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLElement.md"
+  },
+  "HTMLElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLElement.md"
+  },
+  "HTMLElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLElement.md"
+  },
+  "HTMLElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLElement.md"
+  },
+  "HTMLElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLElement.md"
+  },
+  "HTMLHeadElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHeadElement.md"
+  },
+  "HTMLHeadElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHeadElement.md"
+  },
+  "HTMLHeadElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHeadElement.md"
+  },
+  "HTMLHeadElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHeadElement.md"
+  },
+  "HTMLHeadElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHeadElement.md"
+  },
+  "HTMLHeadElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHeadElement.md"
+  },
+  "HTMLHeadElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHeadElement.md"
+  },
+  "HTMLHtmlElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHtmlElement.md"
+  },
+  "HTMLHtmlElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHtmlElement.md"
+  },
+  "HTMLHtmlElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHtmlElement.md"
+  },
+  "HTMLHtmlElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHtmlElement.md"
+  },
+  "HTMLHtmlElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHtmlElement.md"
+  },
+  "HTMLHtmlElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHtmlElement.md"
+  },
+  "HTMLHtmlElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLHtmlElement.md"
+  },
+  "HTMLImageElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLImageElement.md"
+  },
+  "HTMLImageElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLImageElement.md"
+  },
+  "HTMLImageElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLImageElement.md"
+  },
+  "HTMLImageElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLImageElement.md"
+  },
+  "HTMLImageElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLImageElement.md"
+  },
+  "HTMLImageElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLImageElement.md"
+  },
+  "HTMLImageElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLImageElement.md"
+  },
+  "HTMLInputElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLInputElement.md"
+  },
+  "HTMLInputElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLInputElement.md"
+  },
+  "HTMLInputElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLInputElement.md"
+  },
+  "HTMLInputElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLInputElement.md"
+  },
+  "HTMLInputElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLInputElement.md"
+  },
+  "HTMLInputElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLInputElement.md"
+  },
+  "HTMLInputElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLInputElement.md"
+  },
+  "HTMLLabelElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLabelElement.md"
+  },
+  "HTMLLabelElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLabelElement.md"
+  },
+  "HTMLLabelElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLabelElement.md"
+  },
+  "HTMLLabelElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLabelElement.md"
+  },
+  "HTMLLabelElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLabelElement.md"
+  },
+  "HTMLLabelElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLabelElement.md"
+  },
+  "HTMLLabelElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLabelElement.md"
+  },
+  "HTMLLinkElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLinkElement.md"
+  },
+  "HTMLLinkElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLinkElement.md"
+  },
+  "HTMLLinkElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLinkElement.md"
+  },
+  "HTMLLinkElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLinkElement.md"
+  },
+  "HTMLLinkElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLinkElement.md"
+  },
+  "HTMLLinkElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLinkElement.md"
+  },
+  "HTMLLinkElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLLinkElement.md"
+  },
+  "HTMLMenuElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuElement.md"
+  },
+  "HTMLMenuElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuElement.md"
+  },
+  "HTMLMenuElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuElement.md"
+  },
+  "HTMLMenuElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuElement.md"
+  },
+  "HTMLMenuElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuElement.md"
+  },
+  "HTMLMenuElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuElement.md"
+  },
+  "HTMLMenuElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuElement.md"
+  },
+  "HTMLMenuItemElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuItemElement.md"
+  },
+  "HTMLMenuItemElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuItemElement.md"
+  },
+  "HTMLMenuItemElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuItemElement.md"
+  },
+  "HTMLMenuItemElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuItemElement.md"
+  },
+  "HTMLMenuItemElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuItemElement.md"
+  },
+  "HTMLMenuItemElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuItemElement.md"
+  },
+  "HTMLMenuItemElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLMenuItemElement.md"
+  },
+  "HTMLOptionElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLOptionElement.md"
+  },
+  "HTMLOptionElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLOptionElement.md"
+  },
+  "HTMLOptionElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLOptionElement.md"
+  },
+  "HTMLOptionElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLOptionElement.md"
+  },
+  "HTMLOptionElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLOptionElement.md"
+  },
+  "HTMLOptionElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLOptionElement.md"
+  },
+  "HTMLOptionElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLOptionElement.md"
+  },
+  "HTMLProgressElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLProgressElement.md"
+  },
+  "HTMLProgressElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLProgressElement.md"
+  },
+  "HTMLProgressElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLProgressElement.md"
+  },
+  "HTMLProgressElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLProgressElement.md"
+  },
+  "HTMLProgressElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLProgressElement.md"
+  },
+  "HTMLProgressElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLProgressElement.md"
+  },
+  "HTMLProgressElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLProgressElement.md"
+  },
+  "HTMLScriptElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLScriptElement.md"
+  },
+  "HTMLScriptElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLScriptElement.md"
+  },
+  "HTMLScriptElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLScriptElement.md"
+  },
+  "HTMLScriptElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLScriptElement.md"
+  },
+  "HTMLScriptElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLScriptElement.md"
+  },
+  "HTMLScriptElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLScriptElement.md"
+  },
+  "HTMLScriptElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLScriptElement.md"
+  },
+  "HTMLSelectElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSelectElement.md"
+  },
+  "HTMLSelectElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSelectElement.md"
+  },
+  "HTMLSelectElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSelectElement.md"
+  },
+  "HTMLSelectElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSelectElement.md"
+  },
+  "HTMLSelectElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSelectElement.md"
+  },
+  "HTMLSelectElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSelectElement.md"
+  },
+  "HTMLSelectElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLSelectElement.md"
+  },
+  "HTMLStyleElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLStyleElement.md"
+  },
+  "HTMLStyleElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLStyleElement.md"
+  },
+  "HTMLStyleElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLStyleElement.md"
+  },
+  "HTMLStyleElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLStyleElement.md"
+  },
+  "HTMLStyleElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLStyleElement.md"
+  },
+  "HTMLStyleElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLStyleElement.md"
+  },
+  "HTMLStyleElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLStyleElement.md"
+  },
+  "HTMLTextAreaElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTextAreaElement.md"
+  },
+  "HTMLTextAreaElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTextAreaElement.md"
+  },
+  "HTMLTextAreaElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTextAreaElement.md"
+  },
+  "HTMLTextAreaElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTextAreaElement.md"
+  },
+  "HTMLTextAreaElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTextAreaElement.md"
+  },
+  "HTMLTextAreaElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTextAreaElement.md"
+  },
+  "HTMLTextAreaElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLTextAreaElement.md"
+  },
+  "HTMLVideoElement.videoWidth": {
+   "since": "7.4.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.videoHeight": {
+   "since": "7.4.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.dir": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.fastSeek": {
+   "since": "7.4.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.append": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.prepend": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.replaceChildren": {
+   "since": "8.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.setPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.releasePointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "HTMLVideoElement.hasPointerCapture": {
+   "since": "7.1",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/HTML Elements/HTMLVideoElement.md"
+  },
+  "ReadableStream.pipeThrough": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Streams/ReadableStream.md"
+  },
+  "ReadableStream.pipeTo": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Streams/ReadableStream.md"
+  },
+  "ReadableStream.tee": {
+   "since": "7.0.0",
+   "doc": "src/pages/uxp-api/reference-js/Global Members/Streams/ReadableStream.md"
+  },
+  "uxp.userInfo.userId": {
+   "since": "7.3.0",
+   "doc": "src/pages/uxp-api/reference-js/Modules/uxp/User Information/UserInfo.md"
+  }
+ }
+}

@@ -1,0 +1,142 @@
+import type { TSESTree } from "@typescript-eslint/utils";
+import { createRule } from "../util/create-rule.js";
+import { getUxp } from "../util/settings.js";
+import { ModuleTracker, memberPath, stripGlobal, isGlobalReference, propertyName, mergeVisitors } from "../util/ast.js";
+import { isOlder } from "../util/version.js";
+import uxpSince from "../data/generated/uxp-since.js";
+import psMin from "../data/generated/photoshop-min-versions.js";
+
+type Options = [{ typeAware?: boolean; checkDomMembers?: boolean }];
+type MessageIds = "hostTooOld" | "uxpTooOld";
+
+const GLOBALS = uxpSince.globals as Record<string, { since: string; doc: string }>;
+const MEMBERS = uxpSince.members as Record<string, { since: string; doc: string }>;
+const PS = psMin.members as Record<string, string>;
+const PS_ROOTS: Record<string, string> = { core: "photoshopCore", action: "photoshopAction", imaging: "imaging", app: "Photoshop" };
+/** DOM element members documented with a Since version and distinctive enough to match by name. */
+const DOM_MEMBERS = new Set(["replaceChildren", "setPointerCapture", "releasePointerCapture", "hasPointerCapture"]);
+const DOCS_BASE = "https://github.com/AdobeDocs/uxp/blob/main/";
+
+export default createRule<Options, MessageIds>({
+  name: "api-min-version",
+  meta: {
+    type: "problem",
+    docs: {
+      description: "Disallow UXP and Photoshop APIs that are newer than the manifest's host.minVersion",
+      recommended: true,
+      sources: ["@types/photoshop @minVersion tags", "AdobeDocs/uxp reference-js **Since** lines", "jardicc/vscode-uxp-validator host→UXP table"],
+    },
+    schema: [{ type: "object", properties: { typeAware: { type: "boolean" }, checkDomMembers: { type: "boolean" } }, additionalProperties: false }],
+    messages: {
+      hostTooOld: "`{{api}}` needs {{host}} {{required}}+ ({{source}}), but manifest host.minVersion is {{min}}. Raise minVersion or feature-detect it.",
+      uxpTooOld: "`{{api}}` needs UXP {{required}}+ ({{source}}), but host.minVersion {{min}} ships UXP {{uxp}}. Raise minVersion or feature-detect it.",
+    },
+  },
+  defaultOptions: [{ typeAware: true, checkDomMembers: true }],
+  create(context, [opts]) {
+    const uxp = getUxp(context);
+    if (!uxp.hostMinVersion && !uxp.uxpVersion) return {};
+    const sourceCode = context.sourceCode;
+    const tracker = new ModuleTracker(new Set(["uxp", "photoshop"]));
+    const members: TSESTree.MemberExpression[] = [];
+    const idents: TSESTree.Identifier[] = [];
+    const done = new Set<TSESTree.Node>();
+    const services = (sourceCode.parserServices ?? {}) as { program?: { getTypeChecker(): TypeChecker }; esTreeNodeToTSNodeMap?: { get(n: TSESTree.Node): unknown } };
+    const checker = opts.typeAware !== false && services.program && services.esTreeNodeToTSNodeMap ? services.program.getTypeChecker() : null;
+
+    const guarded = (node: TSESTree.Node, text: string): boolean => {
+      for (let p: TSESTree.Node | undefined = node.parent; p; p = p.parent) {
+        const test = p.type === "IfStatement" || p.type === "ConditionalExpression" ? p.test : p.type === "LogicalExpression" ? p.left : null;
+        if (test && test !== node && sourceCode.getText(test).includes(text)) return true;
+        if (p.type === "TryStatement" && p.block && node.range[0] >= p.block.range[0] && node.range[1] <= p.block.range[1]) return true;
+      }
+      return false;
+    };
+
+    const reportHost = (node: TSESTree.Node, api: string, required: string, source: string) => {
+      if (!uxp.hostMinVersion || !isOlder(uxp.hostMinVersion, required) || guarded(node, api.split(".").pop()!)) return;
+      done.add(node);
+      context.report({ node, messageId: "hostTooOld", data: { api, required, host: uxp.host ?? "host", min: uxp.hostMinVersion, source } });
+    };
+    const reportUxp = (node: TSESTree.Node, api: string, required: string, doc: string) => {
+      if (!uxp.uxpVersion || !isOlder(uxp.uxpVersion, required) || guarded(node, api.split(".").pop()!)) return;
+      done.add(node);
+      context.report({ node, messageId: "uxpTooOld", data: { api, required, uxp: uxp.uxpVersion, min: uxp.hostMinVersion ?? "(settings.uxp.uxpVersion)", source: DOCS_BASE + doc.replace(/ /g, "%20") } });
+    };
+
+    const checkPhotoshopPath = (node: TSESTree.Node, resolved: string) => {
+      if (uxp.host !== "PS") return;
+      const parts = resolved.split(".");
+      if (parts[0] !== "photoshop" || parts.length < 2) return;
+      const owner = PS_ROOTS[parts[1]!];
+      if (!owner) return;
+      if (parts.length === 2 && node.parent?.type === "MemberExpression" && node.parent.object === node) return; // report the member instead
+      const key = parts.length === 2 ? (owner === "imaging" ? "imaging" : null) : `${owner}.${parts[2]}`;
+      if (key && PS[key]) reportHost(node, parts.slice(1, 3).join("."), PS[key]!, "@types/photoshop @minVersion");
+    };
+
+    const checkTypeAware = (node: TSESTree.MemberExpression) => {
+      if (!checker || uxp.host !== "PS" || done.has(node)) return;
+      const tsNode = services.esTreeNodeToTSNodeMap!.get(node.property);
+      if (!tsNode) return;
+      const sym = checker.getSymbolAtLocation(tsNode);
+      const decl = sym?.declarations?.[0];
+      if (!sym || !decl || !/[\\/](@types[\\/]photoshop|photoshop)[\\/]/.test(decl.getSourceFile().fileName)) return;
+      const tag = sym.getJsDocTags(checker).find((t) => t.name === "minVersion");
+      const text = tag?.text?.map((t) => t.text).join("").trim();
+      if (text && /^\d/.test(text)) reportHost(node, sourceCode.getText(node).replace(/\s+/g, ""), text, "typed @minVersion");
+    };
+
+    return mergeVisitors(tracker.visitors(), {
+      MemberExpression(node) { members.push(node); },
+      Identifier(node) {
+        const p = node.parent;
+        if (!p) return;
+        if (p.type === "MemberExpression" && p.property === node && !p.computed) return;
+        if (p.type === "Property" && p.parent?.type === "ObjectPattern") return;
+        if (p.type === "ArrayPattern" || p.type === "RestElement" || (p.type === "AssignmentPattern" && p.left === node)) return;
+        if ((p.type === "Property" && p.key === node && !p.computed) || p.type === "ImportSpecifier" || p.type === "ImportDefaultSpecifier" || p.type === "ImportNamespaceSpecifier") return;
+        if (p.type === "VariableDeclarator" && p.id === node) return;
+        if (p.type.startsWith("TS") && p.type !== "TSAsExpression" && p.type !== "TSNonNullExpression") return;
+        idents.push(node);
+      },
+      "Program:exit"() {
+        tracker.finalize();
+        for (const n of idents) {
+          const bound = tracker.resolve(n);
+          if (bound) {
+            if (GLOBALS[bound]) reportUxp(n, bound, GLOBALS[bound]!.since, GLOBALS[bound]!.doc);
+            continue;
+          }
+          if (!GLOBALS[n.name] || !isGlobalReference(sourceCode, n)) continue;
+          if (n.parent?.type === "Property" && (n.parent.parent as TSESTree.Node).type === "ObjectPattern") continue;
+          const g = GLOBALS[n.name]!;
+          reportUxp(n, n.name, g.since, g.doc);
+        }
+        for (const n of members) {
+          const resolved = tracker.resolve(n);
+          if (resolved) {
+            if (resolved.startsWith("photoshop.")) checkPhotoshopPath(n, resolved);
+            else if (GLOBALS[resolved]) reportUxp(n, resolved, GLOBALS[resolved]!.since, GLOBALS[resolved]!.doc);
+          } else {
+            const raw = memberPath(n);
+            const path = raw ? stripGlobal(raw) : null;
+            if (path && raw !== path && GLOBALS[path]) reportUxp(n, path, GLOBALS[path]!.since, GLOBALS[path]!.doc);
+            const m = path?.match(/^navigator\.clipboard\.(\w+)$/);
+            if (m && MEMBERS[`clipboard.${m[1]}`]) reportUxp(n, path!, MEMBERS[`clipboard.${m[1]}`]!.since, MEMBERS[`clipboard.${m[1]}`]!.doc);
+            const prop = propertyName(n);
+            if (opts.checkDomMembers !== false && prop && DOM_MEMBERS.has(prop) && n.parent?.type === "CallExpression" && n.parent.callee === n) {
+              const e = MEMBERS[`Element.${prop}`];
+              if (e) reportUxp(n.property, `Element.${prop}`, e.since, e.doc);
+            }
+          }
+          checkTypeAware(n);
+        }
+      },
+    });
+  },
+});
+
+interface TypeChecker {
+  getSymbolAtLocation(node: unknown): { declarations?: { getSourceFile(): { fileName: string } }[]; getJsDocTags(checker: TypeChecker): { name: string; text?: { text: string }[] }[] } | undefined;
+}

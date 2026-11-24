@@ -1,0 +1,98 @@
+{
+  "name": "eslint-plugin-uxp-lint",
+  "version": "0.1.0",
+  "description": "ESLint rules for Adobe UXP plugins: manifest permissions, API minimum versions, unsupported CSS/HTML/web APIs and Photoshop modal scope.",
+  "type": "module",
+  "license": "MIT",
+  "author": "ThisIsMrAli",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "uxp",
+    "adobe",
+    "photoshop",
+    "indesign",
+    "premiere"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "data",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "default": "./dist/node.js"
+    },
+    "./data": {
+      "types": "./dist/data/index.d.ts",
+      "default": "./dist/data/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "uxp-lint": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "data": "node scripts/build-data.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "@eslint/css": ">=0.10.0",
+    "@eslint/json": ">=0.13.0",
+    "@html-eslint/parser": ">=0.40.0",
+    "eslint": "^9.15.0 || ^10.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@eslint/css": {
+      "optional": true
+    },
+    "@eslint/json": {
+      "optional": true
+    },
+    "@html-eslint/parser": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.74.0"
+  },
+  "devDependencies": {
+    "@eslint/css": "^2.0.1",
+    "@eslint/json": "^2.1.1",
+    "@html-eslint/parser": "^0.68.0",
+    "@types/node": "^26.6.6",
+    "@types/photoshop": "^27.11.0",
+    "@typescript-eslint/parser": "^8.74.0",
+    "@typescript-eslint/rule-tester": "^8.74.0",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "typescript": "5.9",
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.1"
+  }
+}
