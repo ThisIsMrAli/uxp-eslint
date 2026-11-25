@@ -1,5 +1,7 @@
 # eslint-plugin-uxp-lint
 
+[Project site](https://thisismrali.github.io/uxp-eslint/) · [npm package](https://www.npmjs.com/package/eslint-plugin-uxp-lint) · [Rule reference](docs/rules/README.md)
+
 ESLint rules for Adobe UXP plugins (Photoshop, InDesign, Premiere Pro). They catch problems that UXP only shows at runtime, or never shows at all:
 
 - **APIs newer than your manifest.** For example `core.getLayerTree()` with `host.minVersion: "23.0.0"`, `localFileSystem.getEntryWithUrl()` before Photoshop 24.2, or `ResizeObserver` on a host that ships UXP 6.
@@ -34,7 +36,7 @@ It works with ESLint 9.15+ and 10 (flat config). It handles JavaScript, TypeScri
 ## Quick start (no config)
 
 ```sh
-npx uxp-lint .
+npm exec --package=eslint-plugin-uxp-lint -- uxp-lint .
 ```
 
 ```text
@@ -111,9 +113,9 @@ export default [
 - `ignores` (scoped to the uxp-lint blocks)
 - `defaultIgnores: false`
 
-### Editor (VS Code, WebStorm, Neovim)
+### Editor (Cursor, VS Code, WebStorm, Neovim)
 
-There's no separate extension. Install the official **ESLint** extension (`dbaeumer.vscode-eslint`) and keep the `eslint.config.mjs` above, and problems appear as you type.
+Install **ESLint** (`dbaeumer.vscode-eslint`) from the Extensions panel in Cursor or VS Code. Open the UXP project folder with the local npm dependencies and `eslint.config.mjs`. Open a JavaScript file and check **Problems** for diagnostics with a `uxp-lint/` rule ID. If `npx eslint .` reports findings but the editor doesn't, run **ESLint: Show Output Channel** from the Command Palette.
 
 To also lint CSS, HTML and the manifest in VS Code, add this to `.vscode/settings.json`:
 

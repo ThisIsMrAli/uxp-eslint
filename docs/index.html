@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manifest-aware ESLint rules for Adobe UXP plugins in Photoshop, InDesign, and Premiere Pro.">
+  <meta name="theme-color" content="#182034">
+  <title>UXP Lint · ESLint for Adobe UXP</title>
+  <link rel="stylesheet" href="site.css">
+  <script src="site.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="masthead wrap">
+    <a class="wordmark" href="./"><span aria-hidden="true">[_]</span> UXP Lint</a>
+    <nav aria-label="Main navigation">
+      <a href="#checks">Checks</a>
+      <a href="#setup">Setup</a>
+      <a href="https://github.com/ThisIsMrAli/uxp-eslint">GitHub</a>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="intro">
+        <p class="tag">ESLint for Adobe UXP</p>
+        <h1 id="hero-title">Catch UXP bugs before launch.</h1>
+        <p class="lede">Check your plugin against its manifest and the UXP version it targets. Find missing permissions, unsupported APIs, and Photoshop modal errors while you code.</p>
+        <div class="actions">
+          <a class="button" href="#setup">Set up UXP Lint</a>
+          <a class="text-link" href="https://github.com/ThisIsMrAli/uxp-eslint/tree/main/docs/rules">Browse all 14 rules</a>
+        </div>
+        <p class="hosts">Photoshop <span>·</span> InDesign <span>·</span> Premiere Pro</p>
+      </div>
+      <div class="diagnostic" aria-label="Illustrative lint findings">
+        <div class="diagnostic-bar"><span>Example diagnostics</span><span>ESLint</span></div>
+        <div class="examples">
+          <details open>
+            <summary><span class="severity error">Error</span> Missing network permission</summary>
+            <pre><code>await fetch("https://cdn.other.com/asset.png");</code></pre>
+            <p>Add the host to <code>requiredPermissions.network.domains</code> if the request is intentional.</p>
+            <a href="https://github.com/ThisIsMrAli/uxp-eslint/blob/main/docs/rules/manifest-permissions.md">manifest-permissions</a>
+          </details>
+          <details>
+            <summary><span class="severity error">Error</span> Photoshop edit outside modal scope</summary>
+            <pre><code>app.activeDocument.activeLayers[0].opacity = 40;</code></pre>
+            <p>Run document edits inside <code>core.executeAsModal()</code> with Photoshop API version 2.</p>
+            <a href="https://github.com/ThisIsMrAli/uxp-eslint/blob/main/docs/rules/photoshop-modal-scope.md">photoshop-modal-scope</a>
+          </details>
+          <details>
+            <summary><span class="severity warning">Warning</span> CSS unsupported by the target UXP</summary>
+            <pre><code>.panel { display: grid; }</code></pre>
+            <p>For a host targeting UXP 5.5.1, choose a supported layout such as flexbox.</p>
+            <a href="https://github.com/ThisIsMrAli/uxp-eslint/blob/main/docs/rules/no-unsupported-css.md">no-unsupported-css</a>
+          </details>
+        </div>
+      </div>
+    </section>
+    <section class="checks" id="checks" aria-labelledby="checks-title">
+      <div class="wrap checks-layout">
+        <h2 id="checks-title">What it checks</h2>
+        <dl>
+          <div><dt>Manifest &amp; permissions</dt><dd>Validate entrypoints and catch API calls that need network, filesystem, clipboard, or other permissions.</dd></div>
+          <div><dt>Compatibility</dt><dd>Check UXP and Photoshop API versions, unsupported CSS and HTML, deprecated APIs, and unavailable Node modules.</dd></div>
+          <div><dt>Photoshop modal execution</dt><dd>Find state changes outside <code>executeAsModal</code>, unawaited work inside modal callbacks, and unhandled rejections.</dd></div>
+        </dl>
+      </div>
+    </section>
+    <section class="setup wrap" id="setup" aria-labelledby="setup-title">
+      <h2 id="setup-title">Start linting</h2>
+      <div class="setup-grid">
+        <article>
+          <h3>Run once in a terminal</h3>
+          <p>From your UXP project directory, run the CLI. It discovers UXP manifests and reports file and line numbers.</p>
+          <div class="command"><button type="button" hidden data-copy="one-off">Copy</button>
+            <pre id="one-off"><code>npm exec --package=eslint-plugin-uxp-lint -- uxp-lint .</code></pre>
+          </div>
+        </article>
+        <article>
+          <h3>Use Cursor or VS Code</h3>
+          <p>Install <strong>ESLint</strong> (<code>dbaeumer.vscode-eslint</code>) in your editor. Install the package in your UXP project and generate a config. Open a source file to see findings in <strong>Problems</strong>.</p>
+          <div class="command"><button type="button" hidden data-copy="editor">Copy</button>
+            <pre id="editor"><code>npm install -D eslint eslint-plugin-uxp-lint
+npx uxp-lint --init
+npx eslint .</code></pre>
+          </div>
+          <p class="small">The CLI prints a snippet if you already have an ESLint config. The README covers the optional parsers for TypeScript, CSS, HTML, and JSON.</p>
+        </article>
+      </div>
+      <p class="setup-links"><a href="https://github.com/ThisIsMrAli/uxp-eslint#install-as-an-eslint-plugin">Full setup and CI examples</a><a href="https://www.npmjs.com/package/eslint-plugin-uxp-lint">View on npm</a></p>
+      <p id="copy-status" class="sr-only" role="status"></p>
+    </section>
+  </main>
+  <footer class="wrap footer">
+    <span>UXP Lint · MIT</span>
+    <a href="https://github.com/ThisIsMrAli/uxp-eslint/issues">Report an issue</a>
+  </footer>
+</body>
+</html>

@@ -5,6 +5,14 @@
   "type": "module",
   "license": "MIT",
   "author": "ThisIsMrAli",
+  "homepage": "https://thisismrali.github.io/uxp-eslint/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThisIsMrAli/uxp-eslint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ThisIsMrAli/uxp-eslint/issues"
+  },
   "keywords": [
     "eslint",
     "eslintplugin",
