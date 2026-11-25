@@ -7,10 +7,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const src = path.resolve(process.argv[2] ?? "../../uxp-tools/eslint/raw");
-const out = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../data");
+const outputRoot = process.argv[3] ? path.resolve(process.argv[3]) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const out = path.join(outputRoot, "data");
+fs.mkdirSync(out, { recursive: true });
 const gitSha = (dir) => execSync("git rev-parse HEAD", { cwd: dir }).toString().trim();
 const write = (name, obj) => fs.writeFileSync(path.join(out, name), JSON.stringify(obj, null, 1) + "\n");
 const tmp = fs.mkdtempSync("/tmp/uxp-data-");

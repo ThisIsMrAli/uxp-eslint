@@ -29,6 +29,7 @@ jsTester().run("no-unsupported-fs-method", rule("no-unsupported-fs-method"), {
     "import fs from 'fs'; await fs.writeFile('plugin-data:/x', 'y')",
     "const fs = require('uxp').storage.localFileSystem; fs.getDataFolder()",
     "const fs = something(); fs.existsSync('x')",
+    "const fs = require('fs'); fs.createReadStream('plugin:/a')",
   ],
   invalid: [
     { code: "const fs = require('fs'); fs.existsSync('plugin:/a')", errors: [{ messageId: "unsupported", data: { name: "existsSync", list: "readFile, readFileSync, writeFile, writeFileSync, open, close, read, write, lstat, lstatSync, rename, copyFile, unlink, mkdir, rmdir, readdir, readdirSync", hint: " Use lstatSync (wrapped in try/catch)." } }] },
@@ -46,6 +47,8 @@ jsTester().run("no-node-builtin-modules", rule("no-node-builtin-modules"), {
     { code: "const cp = require('child_process')", errors: [{ messageId: "nodeOnly" }] },
     { code: "import net from 'node:net'", errors: [{ messageId: "nodeOnly" }] },
     { code: "await import('worker_threads')", errors: [{ messageId: "nodeOnly" }] },
+    { code: "import dns from 'dns/promises'", errors: [{ messageId: "nodeOnly" }] },
+    { code: "const readline = require('readline/promises')", errors: [{ messageId: "nodeOnly" }] },
   ],
 });
 
@@ -69,6 +72,8 @@ jsTester().run("entrypoints-match-manifest", rule("entrypoints-match-manifest"),
 const M = (o: Record<string, unknown>) => JSON.stringify(manifest(o), null, 2);
 jsonTester().run("valid-manifest", rule("valid-manifest"), {
   valid: [
+    { code: M({ host: { app: "ame", minVersion: "25.0.0" } }), filename: "manifest.json", options: [{ reportUnknownHostVersion: true }] },
+    { code: M({ requiredPermissions: { enableAddon: true } }), filename: "manifest.json" },
     { code: M({}), filename: "manifest.json" },
     { code: M({ requiredPermissions: { launchProcess: { extensions: [""] } } }), filename: "manifest.json" },
     { code: '{"entrypoints":[{"main":"x"}]}', filename: "other.json" },
@@ -81,6 +86,7 @@ jsonTester().run("valid-manifest", rule("valid-manifest"), {
     { code: '{"manifestVersion":3,"id":"a","name":"abc","version":"1.0.0","host":{"app":"XD","minVersion":"21.0"},"entrypoints":[]}', filename: "manifest.json" },
   ],
   invalid: [
+    { code: M({ requiredPermissions: { enableAddon: "true" } }), filename: "manifest.json", errors: [{ messageId: "wrongType", data: { key: "requiredPermissions.enableAddon", expected: "true or false" } }] },
     { code: M({ entrypoints: [{ type: "panel", id: "panel", main: "index.html" }] }), filename: "manifest.json", errors: [{ messageId: "entrypointMain" }] },
     { code: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[" "]}}}', output: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":5,"host":{"app":"PS","minVersion":"24.0.0"},"requiredPermissions":{"launchProcess":{"extensions":[""]}}}', filename: "manifest.json", errors: [{ messageId: "blankExtension" }] },
     { code: '{"id":"a","name":"abc","version":"1.0.0","entrypoints":[],"manifestVersion":4,"host":{"app":"PS","minVersion":"22.0.0"},"requiredPermissions":{"network":{"domains":"all"}}}', filename: "manifest.json", errors: [{ messageId: "permissionsNeedV5" }] },

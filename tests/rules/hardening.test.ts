@@ -106,6 +106,7 @@ jsTester().run("api-min-version (forum)", rule("api-min-version"), {
   valid: [
     { code: "const { localFileSystem } = require('uxp').storage; localFileSystem.getEntryWithUrl('plugin-temp:/x');", settings: ps("24.2.0") },
     { code: "navigator.language", settings: ps("26.0.0") },
+    { code: "const fs = require('fs'); fs.createReadStream('plugin:/a')", settings: { uxp: { uxpVersion: "8.2.0" } } },
     { code: "const navigator = {}; navigator.language", settings: ps("24.0.0") },
     // DOM v2 @minVersion tags of 23.0 on APIs that existed in 22.x are not reported (floor policy)
     { code: "const { app } = require('photoshop'); app.activeDocument.name", settings: ps("22.0.0") },
@@ -119,6 +120,8 @@ jsTester().run("api-min-version (forum)", rule("api-min-version"), {
     { code: "const { localFileSystem } = require('uxp').storage; localFileSystem.getEntryWithUrl('plugin-temp:/x');", settings: ps("23.3.0"), errors: [{ message: /`localFileSystem\.getEntryWithUrl` needs UXP 6\.5\.0\+/ }] },
     { code: "const fs = require('uxp').storage.localFileSystem; fs.getEntryWithUrl('plugin-temp:/x');", settings: ps("23.3.0"), errors: [{ messageId: "uxpTooOld" }] },
     { code: "console.log(navigator.language)", settings: ps("25.0.0"), errors: [{ messageId: "uxpTooOld" }] },
+    { code: "const fs = require('fs'); fs.createReadStream('plugin:/a')", settings: { uxp: { uxpVersion: "8.1.0" } }, errors: [{ messageId: "uxpTooOld" }] },
+    { code: "const { fs } = require('uxp').storage; fs.createReadStream('plugin:/a')", settings: { uxp: { uxpVersion: "8.1.0" } }, errors: [{ messageId: "uxpTooOld" }] },
     { code: "new window.ResizeObserver(f);", settings: ps("24.0.0"), errors: [{ messageId: "uxpTooOld" }] },
   ],
 });

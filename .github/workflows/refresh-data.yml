@@ -1,0 +1,61 @@
+name: Refresh UXP compatibility data
+
+on:
+  schedule:
+    - cron: "23 7 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: refresh-uxp-data
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run data:refresh
+      - run: npm test
+      - run: npm run typecheck
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: refreshed-uxp-data
+          path: |
+            data/*.json
+            src/data/generated/*.ts
+          if-no-files-found: error
+          retention-days: 7
+
+  propose:
+    needs: refresh
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: refreshed-uxp-data
+          path: .
+      - uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8
+        with:
+          branch: automation/refresh-uxp-data
+          delete-branch: true
+          add-paths: |
+            data/*.json
+            src/data/generated/*.ts
+          commit-message: "Update UXP compatibility data"
+          title: "Update UXP compatibility data"
+          body: |
+            Refresh the sourced compatibility tables from the latest upstream documentation and Photoshop type definitions.
+
+            The refresh, tests, and typecheck completed in the preceding job. Review changes and source revisions before merging. New documentation does not automatically create lint rules.

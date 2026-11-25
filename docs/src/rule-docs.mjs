@@ -51,7 +51,7 @@ export const RULES = {
     ],
   },
   "no-node-builtin-modules": {
-    details: "Reports `import`/`require`/`import()` of Node-only modules: child_process, cluster, dgram, dns, http, http2, https, inspector, net, readline, repl, tls, tty, v8, vm, worker_threads, fs/promises (also with `node:`). `fs`, `os`, `path`, `process` are not reported (UXP or bundlers provide them). Build scripts and tests (files with a shebang, `node:` imports or `process.argv`) are skipped automatically. Option `allow`.",
+    details: "Reports `import`/`require`/`import()` of Node-only modules: child_process, cluster, dgram, dns, dns/promises, http, http2, https, inspector, net, readline, readline/promises, repl, tls, tty, v8, vm, worker_threads, fs/promises (also with `node:`). `fs`, `os`, `path`, `process` are not reported (UXP or bundlers provide them). Build scripts and tests (files with a shebang, `node:` imports or `process.argv`) are skipped automatically. Option `allow`.",
     whenNot: "In files that never ship to UXP (build tooling); the CLI and `uxpConfig()` already ignore the usual folders.",
     incorrect: [{ code: "const { exec } = require(\"child_process\");\nexec(\"open .\");" }],
     correct: [{ code: "const { shell } = require(\"uxp\");\nawait shell.openPath(folderPath);" }],

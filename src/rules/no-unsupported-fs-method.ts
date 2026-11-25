@@ -37,7 +37,8 @@ export default createRule<[], MessageIds>({
           const name = propertyName(n);
           if (!name) continue;
           if (name === "promises") { context.report({ node: n.property, messageId: "promises" }); continue; }
-          if (!DOCUMENTED.has(name) && !["constants", "default"].includes(name)) context.report({ node: n.property, messageId: "unsupported", data: { name, list, hint: SYNC_TO_DOC[name] ? ` Use ${SYNC_TO_DOC[name]}.` : "" } });
+          // Introduced in UXP 8.2; api-min-version handles older known targets.
+          if (!DOCUMENTED.has(name) && !["constants", "default", "createReadStream"].includes(name)) context.report({ node: n.property, messageId: "unsupported", data: { name, list, hint: SYNC_TO_DOC[name] ? ` Use ${SYNC_TO_DOC[name]}.` : "" } });
         }
       },
     });

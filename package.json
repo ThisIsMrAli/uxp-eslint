@@ -66,6 +66,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/bundle.mjs",
     "data": "node scripts/build-data.mjs",
+    "data:refresh": "node scripts/refresh-data.mjs",
     "test": "npm run build && vitest run",
     "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.browser.json",
     "prepublishOnly": "npm run build && npm test",

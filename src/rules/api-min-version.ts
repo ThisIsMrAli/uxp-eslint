@@ -48,7 +48,7 @@ export default createRule<Options, MessageIds>({
     const uxp = getUxp(context);
     if (!uxp.hostMinVersion && !uxp.uxpVersion) return {};
     const sourceCode = context.sourceCode;
-    const tracker = new ModuleTracker(new Set(["uxp", "photoshop"]));
+    const tracker = new ModuleTracker(new Set(["uxp", "photoshop", "fs"]));
     const members: TSESTree.MemberExpression[] = [];
     const idents: TSESTree.Identifier[] = [];
     const done = new Set<TSESTree.Node>();

@@ -9,4 +9,7 @@ export const CURATED_SINCE: Record<string, { since: string; source: string }> = 
   "uxp.storage.localFileSystem.getEntryWithUrl": { since: "6.5.0", source: SOURCES.uxpChangelog },
   // UXP changelog 8.0.1 — New: "Support for Navigator.language API"
   "navigator.language": { since: "8.0.1", source: SOURCES.uxpChangelog },
+  // Photoshop changelog, UXP 8.2.0: filesystem stream support.
+  "fs.createReadStream": { since: "8.2.0", source: "https://developer.adobe.com/photoshop/uxp/ps_reference/changelog/" },
+  "uxp.storage.fs.createReadStream": { since: "8.2.0", source: "https://developer.adobe.com/photoshop/uxp/ps_reference/changelog/" },
 };
