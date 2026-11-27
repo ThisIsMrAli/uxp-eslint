@@ -16,7 +16,7 @@ const SKIP = new Set(["node_modules", ".git", "dist", "build", "out", "coverage"
  */
 export const DEFAULT_IGNORES = [
   "**/node_modules/**", "**/dist/**", "**/build/**", "**/out/**", "**/coverage/**", "**/vendor/**",
-  "**/*.min.js", "**/*.min.css", "**/*.bundle.js", "**/*.map",
+  "**/uxp-editor.d.ts", "**/*.min.js", "**/*.min.css", "**/*.bundle.js", "**/*.map",
   "**/*.config.{js,cjs,mjs,ts,mts,cts}", "**/{gulpfile,Gruntfile,Jakefile,build,webpack.*,rollup.*,vite.*,esbuild.*}.{js,cjs,mjs,ts}",
   "**/{test,tests,__tests__,__mocks__,spec,e2e,fixtures,test-utils}/**", "**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}",
   "**/{scripts,tools,bin,server,docs,.github}/**",

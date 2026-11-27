@@ -8,6 +8,7 @@ import { uxpForHost } from "./util/version.js";
 import { stylish, github, sarif, json, type RunInfo } from "./report.js";
 import { rules } from "./rules/index.js";
 import { PREFIX } from "./configs.js";
+import { initTypes } from "./init-types.js";
 import { VERSION } from "./version.js";
 
 const HELP = `uxp-lint ${VERSION}: lint Adobe UXP plugins (Photoshop, InDesign, Premiere Pro)
@@ -24,6 +25,7 @@ Usage: uxp-lint [dir] [options]
   --ignore <globs>      extra comma-separated ignore globs
   --no-default-ignores  also lint tests, tooling, WebView/CEP folders and generated files
   --init                write an eslint.config.mjs that uses eslint-plugin-uxp-lint
+  --init-types          set up UXP autocomplete for Cursor and VS Code
   --rules               list the rules with docs links
   --no-color            plain output (also NO_COLOR=1)
   -v, --version         print the version
@@ -38,7 +40,7 @@ const VALUE_FLAGS = new Set(["--format", "-f", "--output", "-o", "--ignore", "--
 const flag = (...n: string[]) => n.some((x) => args.includes(x));
 const val = (...n: string[]) => { for (const x of n) { const i = args.indexOf(x); if (i >= 0) return args[i + 1]; } return undefined; };
 const positional = args.filter((a, i) => !a.startsWith("-") && !VALUE_FLAGS.has(args[i - 1] ?? ""));
-const KNOWN = new Set([...VALUE_FLAGS, "--strict", "--fix", "--quiet", "--no-default-ignores", "--init", "--rules", "--no-color", "--color", "-v", "--version", "-h", "--help"]);
+const KNOWN = new Set([...VALUE_FLAGS, "--strict", "--fix", "--quiet", "--no-default-ignores", "--init", "--init-types", "--rules", "--no-color", "--color", "-v", "--version", "-h", "--help"]);
 
 function fail(msg: string): never {
   process.stderr.write(`uxp-lint: ${msg}\n`);
@@ -62,7 +64,9 @@ async function main() {
     }
     return 0;
   }
+  if (flag("--init-types")) initTypes(dir, val("--manifest"));
   if (flag("--init")) return init(dir);
+  if (flag("--init-types")) return 0;
 
   const format = val("--format", "-f") ?? "stylish";
   if (!["stylish", "github", "sarif", "json"].includes(format)) fail(`unknown format "${format}" (stylish, github, sarif, json)`);

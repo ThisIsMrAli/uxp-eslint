@@ -50,7 +50,7 @@ styles.css
 
 ✖ 34 problems (18 errors, 16 warnings) in 4 files
   1 fixable with --fix
-  1 plugin (PS 23.0.0 → UXP 5.5.1) · 0.4s · uxp-lint 0.3.0
+  1 plugin (PS 23.0.0 → UXP 5.5.1) · 0.4s · uxp-lint 0.4.0
 
 Rule docs:
      7 × uxp-lint/no-unsupported-html  https://github.com/ThisIsMrAli/uxp-eslint/blob/main/docs/rules/no-unsupported-html.md
@@ -80,6 +80,7 @@ The "Not linted" summary line lists what was skipped. Use `--no-default-ignores`
 | `--quiet`, `--max-warnings <n>` | As in ESLint |
 | `--ignore <globs>` | Extra comma-separated ignores |
 | `--init` | Write an `eslint.config.mjs` and print the packages to install |
+| `--init-types` | Set up UXP autocomplete in Cursor and VS Code |
 | `--rules` | List the rules with docs links |
 
 Exit codes: `0` means no errors, `1` means lint errors or `--max-warnings` was exceeded, `2` means a usage or configuration error.
@@ -129,6 +130,14 @@ To also lint CSS, HTML and the manifest in VS Code, add this to `.vscode/setting
 Quick fixes such as "Add `await`" or "Replace with `write`" appear in the lightbulb menu. Autofixable problems are fixed by "ESLint: Fix all auto-fixable problems" or by `"editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" }`.
 
 WebStorm and Neovim (`eslint-lsp`) use the same flat config.
+
+### UXP autocomplete
+
+From your plugin project, run `npx uxp-lint --init-types` and then run the install command it prints. The command reads the manifest, writes `uxp-editor.d.ts`, and creates a `jsconfig.json` if you don’t have an editor config. If you already have a `jsconfig.json` or `tsconfig.json`, include the declaration file in it. Use Node or Bundler module resolution for npm types and omit the browser DOM lib in projects that run entirely in UXP. Restart the TypeScript server in Cursor or VS Code if suggestions don’t appear.
+
+Adobe’s shared UXP declarations provide completion for platform APIs. The command adds the Photoshop, Premiere Pro, or InDesign package when it sees those hosts in your manifest. The Photoshop and InDesign packages are community maintained. Media Encoder and After Effects get shared UXP completion through this setup. Start typing after `require("uxp").storage.localFileSystem.` in a JavaScript file to see methods like `getFileForOpening`.
+
+The editor provides autocomplete from the installed declarations. UXP Lint checks the resulting code against the minimum host version you declare. See [Adobe’s TypeScript and IntelliSense guide](https://developer.adobe.com/uxp/guides/how-to/typescript/) for more about editor types.
 
 ### CI (GitHub Actions)
 

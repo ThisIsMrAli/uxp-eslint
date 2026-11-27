@@ -16,6 +16,39 @@ const has = fs.existsSync(cli);
 describe.skipIf(!has)("CLI", () => {
   beforeAll(() => expect(fs.existsSync(cli)).toBe(true));
 
+  it("sets up editor completions for every host in a manifest", () => {
+    const dir = tmp();
+    const hosts = ["PS", "premierepro", "ID", "ame"].map((app) => ({ app, minVersion: "27.0.0" }));
+    fs.writeFileSync(path.join(dir, "manifest.json"), JSON.stringify({ manifestVersion: 5, main: "index.js", host: hosts }));
+    const result = run([dir, "--init-types"]);
+    expect(result.code).toBe(0);
+    expect(result.out).toContain("npm install -D @adobe/cc-ext-uxp-types @types/photoshop @adobe/premierepro indesign-uxp-types");
+    expect(result.out).toContain("Shared UXP types only for: ame");
+    const config = JSON.parse(fs.readFileSync(path.join(dir, "jsconfig.json"), "utf8"));
+    expect(config.compilerOptions).toMatchObject({ allowJs: true, noEmit: true, module: "Node16", lib: ["ES2020"] });
+    const declarations = fs.readFileSync(path.join(dir, "uxp-editor.d.ts"), "utf8");
+    expect(declarations).toContain('declare module "premierepro"');
+    expect(declarations).toContain("localFileSystem: FileSystemProvider");
+    expect(run([dir, "--init-types"]).code).toBe(0);
+    expect(fs.readFileSync(path.join(dir, "uxp-editor.d.ts"), "utf8")).toBe(declarations);
+  });
+
+  it("preserves an existing TypeScript config and custom declarations", () => {
+    const dir = tmp();
+    const config = '{\n  "include": ["src"]\n}\n';
+    const declarations = "// existing editor types\n";
+    fs.copyFileSync(fx("ps-good/manifest.json"), path.join(dir, "manifest.json"));
+    fs.writeFileSync(path.join(dir, "tsconfig.json"), config);
+    fs.writeFileSync(path.join(dir, "uxp-editor.d.ts"), declarations);
+    const result = run([dir, "--init-types"]);
+    expect(result.code).toBe(0);
+    expect(result.out).toContain("Keep your existing tsconfig.json");
+    expect(result.out).toContain("merge this into it");
+    expect(fs.readFileSync(path.join(dir, "tsconfig.json"), "utf8")).toBe(config);
+    expect(fs.readFileSync(path.join(dir, "uxp-editor.d.ts"), "utf8")).toBe(declarations);
+    expect(fs.existsSync(path.join(dir, "jsconfig.json"))).toBe(false);
+  });
+
   it("stylish: rule ids, summary, fixable count, docs links, exit 1", () => {
     const r = run([fx("ps-bad")]);
     expect(r.code).toBe(1);
