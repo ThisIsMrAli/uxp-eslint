@@ -36,8 +36,8 @@ h3 { font-size: 1.4rem; letter-spacing: -.025em; }
 .button { display: inline-block; background: var(--accent); border-radius: .4rem; color: white; padding: .65rem 1rem; text-decoration: none; font-weight: 750; }
 .button:hover { background: #263489; }
 .text-link, .setup-links { font-weight: 700; color: var(--accent); }
-.hosts { font-weight: 650; font-size: .9rem; color: var(--muted); margin: 1.45rem 0 0; }
-.hosts span { padding-inline: .2em; }
+.hosts { display: flex; flex-wrap: wrap; gap: .35rem .5rem; list-style: none; padding: 0; margin: 0 0 1.1rem; }
+.hosts li { font-weight: 650; font-size: .875rem; color: var(--ink); background: #e7eafe; border-radius: .3rem; padding: .12rem .5rem; }
 .diagnostic { background: var(--dark); color: #f0f1ff; border-radius: .85rem; box-shadow: .55rem .65rem 0 #aeb9ec; overflow: hidden; }
 .diagnostic-bar { background: var(--panel); color: #e1e5ff; display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; font: .86rem/1.5 ui-monospace, monospace; }
 .examples { padding: 0 1.2rem; }
