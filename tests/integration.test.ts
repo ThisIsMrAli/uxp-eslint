@@ -6,7 +6,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 import { uxpConfig, findManifests } from "../src/node.js";
-import plugin, { buildConfig } from "../src/index.js";
+import plugin, { buildConfig, uxpForHost } from "../src/index.js";
 
 const fx = (p: string) => path.resolve(__dirname, "fixtures", p);
 async function lint(dir: string) {
@@ -70,6 +70,26 @@ describe("browser Linter (eslint/universal), manifest passed in", () => {
     const c = linter.verify(".a { gap: 4px; }", config, "styles.css");
     expect(c.map((m) => m.messageId)).toEqual(["unsupported"]);
   });
+  it.each([
+    ["PS", "27.11.0", "9.4.1"],
+    ["ID", "22.0.0", "9.4.0"],
+    ["premierepro", "27.0.0", "9.4.0"],
+    ["ame", "27.0.0", "9.4.0"],
+    ["aftereffects", "27.1.0", "9.4.0"],
+  ])("checks core UXP permissions on %s with its documented runtime", (app, minVersion, runtime) => {
+    expect(uxpForHost(app, minVersion)).toBe(runtime);
+    const config = buildConfig({ manifest: { manifestVersion: 5, host: { app, minVersion } } });
+    const messages = new Linter().verify("fetch('https://example.com/data')", config, "index.js");
+    expect(messages.map((m) => m.ruleId)).toEqual(["uxp-lint/manifest-permissions"]);
+  });
+
+  it("enables Photoshop modal checks on Photoshop files when Premiere is listed first", () => {
+    const config = buildConfig({ manifest: { manifestVersion: 5, host: [{ app: "premierepro", minVersion: "26.3.0" }, { app: "PS", minVersion: "27.11.0" }] } });
+    const code = 'const { action } = require("photoshop"); action.batchPlay([{ _obj: "make" }], {});';
+    expect(new Linter().verify(code, config, "photoshop/main.js").map((m) => m.ruleId)).toContain("uxp-lint/photoshop-modal-scope");
+    expect(new Linter().verify(code, config, "premiere/main.js").map((m) => m.ruleId)).not.toContain("uxp-lint/photoshop-modal-scope");
+  });
+
   it("static presets work with settings", () => {
     const linter = new Linter();
     const msgs = linter.verify("fetch('https://x.com')", [{ ...(plugin.configs.photoshop as object), settings: { uxp: { manifest } } }], "a.js");

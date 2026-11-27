@@ -29,7 +29,7 @@ export interface UxpSettings {
   manifest?: UxpManifest;
   /** Raw manifest.json text (parsed lazily if `manifest` is absent). */
   manifestText?: string;
-  /** Override the host app ("PS", "ID", "premierepro"). Defaults to manifest host.app. */
+  /** Override the host app ("PS", "ID", "premierepro", "ame", "aftereffects"). Defaults to manifest host.app. */
   host?: string;
   /** Override host minimum version. Defaults to manifest host.minVersion. */
   hostMinVersion?: string;
@@ -76,6 +76,8 @@ const cache = new WeakMap<object, Map<string, ResolvedUxp>>();
 const HOST_HINTS: [RegExp, string][] = [
   [/(^|[\/._-])(ppro|premiere|premierepro)([\/._-]|$)/i, "premierepro"],
   [/(^|[\/._-])(ps|photoshop)([\/._-]|$)/i, "PS"],
+  [/(^|[\/._-])(ame|media-encoder)([\/._-]|$)/i, "ame"],
+  [/(^|[\/._-])(ae|after-effects|aftereffects)([\/._-]|$)/i, "aftereffects"],
   [/(^|[\/._-])(indesign|idsn)([\/._-]|$)/i, "ID"],
 ];
 

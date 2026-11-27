@@ -72,7 +72,7 @@ jsTester().run("entrypoints-match-manifest", rule("entrypoints-match-manifest"),
 const M = (o: Record<string, unknown>) => JSON.stringify(manifest(o), null, 2);
 jsonTester().run("valid-manifest", rule("valid-manifest"), {
   valid: [
-    { code: M({ host: { app: "ame", minVersion: "25.0.0" } }), filename: "manifest.json", options: [{ reportUnknownHostVersion: true }] },
+    { code: M({ host: { app: "ame", minVersion: "27.0.0" } }), filename: "manifest.json", options: [{ reportUnknownHostVersion: true }] },
     { code: M({ requiredPermissions: { enableAddon: true } }), filename: "manifest.json" },
     { code: M({}), filename: "manifest.json" },
     { code: M({ requiredPermissions: { launchProcess: { extensions: [""] } } }), filename: "manifest.json" },

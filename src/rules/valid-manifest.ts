@@ -16,7 +16,7 @@ interface JArray extends JNode { type: "Array"; elements: { value: JValue }[] }
 type JValue = JObject | JArray | JString | (JNode & { value?: unknown });
 
 const get = (o: JValue | undefined, k: string): JValue | undefined => (o?.type === "Object" ? (o as JObject).members.find((m) => m.name.value === k)?.value : undefined);
-const KNOWN_HOSTS = new Set(["PS", "ID", "premierepro", "XD", "ame"]);
+const KNOWN_HOSTS = new Set(["PS", "ID", "premierepro", "XD", "ame", "aftereffects"]);
 // Manifest v4 reference, "Required: Develop / Publish" rows (main is optional and defaults to main.js).
 const REQUIRED = ["manifestVersion", "id", "name", "version", "host"]; // entrypoints may be omitted (Adobe invisible-plugin-sample)
 // Manifest v4 reference: these sizes are "Valid only for panel entry points"; shortcut is "Only valid for command entry points".
@@ -122,7 +122,7 @@ export default createRule<[{ reportUnknownHostVersion?: boolean }], MessageIds>(
           const min = get(h, "minVersion") as JString | undefined;
           if (app && !KNOWN_HOSTS.has(app)) context.report({ loc: get(h, "app")!.loc, messageId: "unknownHost", data: { app } });
           if (!min) context.report({ loc: h.loc, messageId: "missingMinVersion" });
-          else if (opts.reportUnknownHostVersion && app && !["XD", "ame"].includes(app) && KNOWN_HOSTS.has(app) && typeof min.value === "string" && uxpForHost(app, min.value) === null) context.report({ loc: min.loc, messageId: "unknownHostVersion", data: { app, version: min.value } });
+          else if (opts.reportUnknownHostVersion && app && app !== "XD" && KNOWN_HOSTS.has(app) && typeof min.value === "string" && uxpForHost(app, min.value) === null) context.report({ loc: min.loc, messageId: "unknownHostVersion", data: { app, version: min.value } });
         }
         const eps = get(root, "entrypoints") ?? get(root, "entryPoints"); // both spellings appear in shipping plugins (e.g. Alchemist)
         if (eps?.type === "Array") {

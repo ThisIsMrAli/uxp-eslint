@@ -34,8 +34,8 @@ export function buildConfig(opts: BuildConfigOptions = {}): FlatConfig[] {
   const settings: { uxp: UxpSettings } = { uxp: { ...(opts.settings ?? {}), ...(opts.manifest ? { manifest: opts.manifest } : {}), ...(opts.manifestText ? { manifestText: opts.manifestText } : {}), ...(opts.host ? { host: opts.host } : {}) } };
   const manifestHost = (() => {
     const h = opts.manifest?.host;
-    const app = Array.isArray(h) ? h[0]?.app : h?.app;
-    return (opts.host ?? app) as Host | undefined;
+    const app = Array.isArray(h) ? (h.some((entry) => entry?.app === "PS") ? "PS" : h[0]?.app) : h?.app;
+    return (settings.uxp.host ?? app) as Host | undefined;
   })();
   const b = (globs: string[]) => globs.map((g) => `${opts.base ?? ""}${g}`);
   const tag = opts.base ? ` (${opts.base.replace(/\/$/, "")})` : "";

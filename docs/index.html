@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Manifest-aware ESLint rules for Adobe UXP plugins in Photoshop, InDesign, and Premiere Pro.">
+  <meta name="description" content="Manifest-aware ESLint rules for Adobe UXP plugins in Photoshop, Premiere Pro, InDesign, Media Encoder, and After Effects.">
   <meta name="theme-color" content="#182034">
   <title>UXP Lint · ESLint for Adobe UXP</title>
   <link rel="stylesheet" href="site.css">
@@ -29,7 +29,7 @@
           <a class="button" href="#setup">Set up UXP Lint</a>
           <a class="text-link" href="https://github.com/ThisIsMrAli/uxp-eslint/tree/main/docs/rules">Browse all 14 rules</a>
         </div>
-        <p class="hosts">Photoshop <span>·</span> InDesign <span>·</span> Premiere Pro</p>
+        <p class="hosts">Photoshop <span>·</span> Premiere Pro <span>·</span> InDesign <span>·</span> Media Encoder <span>·</span> After Effects</p>
       </div>
       <div class="diagnostic" aria-label="Illustrative lint findings">
         <div class="diagnostic-bar"><span>Example diagnostics</span><span>ESLint</span></div>
@@ -61,6 +61,7 @@
         <dl>
           <div><dt>Manifest &amp; permissions</dt><dd>Validate entrypoints and catch API calls that need network, filesystem, clipboard, or other permissions.</dd></div>
           <div><dt>Compatibility</dt><dd>Check UXP and Photoshop API versions, unsupported CSS and HTML, deprecated APIs, and unavailable Node modules.</dd></div>
+          <div><dt>Host coverage</dt><dd>All five hosts get shared UXP checks, including manifest permissions and runtime compatibility. Photoshop additionally gets host API version and modal checks. Media Encoder and After Effects beta runtime mappings are available in the GitHub source and will ship in the next npm release.</dd></div>
           <div><dt>Photoshop modal execution</dt><dd>Find state changes outside <code>executeAsModal</code>, unawaited work inside modal callbacks, and unhandled rejections.</dd></div>
         </dl>
       </div>

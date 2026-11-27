@@ -38,7 +38,7 @@ export const CSS_STRICT = r({ "no-unsupported-css": ["error", { ignoreVendorPref
 export const HTML_RULES = r({ "no-unsupported-html": "warn", "manifest-permissions": "error" });
 export const MANIFEST_RULES = r({ "valid-manifest": "error" });
 
-export type Host = "PS" | "ID" | "premierepro";
+export type Host = "PS" | "ID" | "premierepro" | "ame" | "aftereffects";
 
 export interface BuildConfigOptions {
   /** Parsed manifest.json (recommended). */
