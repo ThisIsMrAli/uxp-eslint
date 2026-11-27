@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-uxp-lint",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ESLint rules for Adobe UXP plugins: manifest permissions, API minimum versions, unsupported CSS/HTML/web APIs and Photoshop modal scope.",
   "type": "module",
   "license": "MIT",
@@ -61,7 +61,7 @@
     }
   },
   "bin": {
-    "uxp-lint": "./dist/cli.js"
+    "uxp-lint": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/bundle.mjs",
